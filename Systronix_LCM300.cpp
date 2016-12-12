@@ -238,10 +238,13 @@ uint8_t Systronix_LCM300::readRegister (uint16_t *data)
   return 0 if no error, positive bytes read otherwise.
 */
 
-uint8_t Systronix_LCM300::commandAsciiRead (uint8_t cmd, uint16_t *data, uint8_t count)
+uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 	{
-	if (!control.exists)								// exit immediately if device does not exist
-		return ABSENT;
+	// if (!control.exists)								// exit immediately if device does not exist
+	// {
+	// 	Serial.println("No control");
+	// 	return ABSENT;
+	// }
 
 	uint8_t written;	// # of bytes written 
 
@@ -249,6 +252,9 @@ uint8_t Systronix_LCM300::commandAsciiRead (uint8_t cmd, uint16_t *data, uint8_t
 	written = Wire.write (cmd);							// PMBus command code
 	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition
 
+	Serial.printf("cmd 0x%X\r\n", cmd);
+
+	char char_read;
 	// now try to read the ascii data at that read command location
 
 	if (count != Wire.requestFrom(_base, count, I2C_STOP))
@@ -259,11 +265,18 @@ uint8_t Systronix_LCM300::commandAsciiRead (uint8_t cmd, uint16_t *data, uint8_t
 		return FAIL;
 		}
 
+	Serial.printf("%i bytes avail to read\r\n", count);	
+
+
+	uint8_t index=0;
 	while (Wire.available())
 		{
-		Serial.print(Wire.read(), HEX); 				// print em out
+		char_read = Wire.read();
+		Serial.printf("0x%X:%c ", char_read, char_read);
+		data[index++] = char_read;
 		}
 
+	Serial.println();
 	return SUCCESS;
 	}
 

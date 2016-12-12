@@ -78,11 +78,10 @@
 
 // MFR ID and product data area, 0x99-0x9F ASCII data, 0xA0-0xAB "linear" data format 
 // 0x99-0x
-#define MFR_ID_CMD					0x99	// 7 bytes should be ASCII "Artesyn"
-#define MFR_MODEL_CMD				0x9A	// 7 bytes such as "LCM300Q"
-
-
-
+#define MFR_ID_CMD					0x099	// 7 bytes should be ASCII "Artesyn"
+#define MFR_MODEL_CMD				0x09A	// 7 bytes such as "LCM300Q"
+#define MFR_REVISION_CMD			0x09B	// 2 bytes such as "0A"
+#define MFR_LOCATION_CMD			0x09C	// 6 bytes
 
 class Systronix_LCM300
 {
@@ -122,7 +121,7 @@ class Systronix_LCM300
 		void		begin (void);
 		uint8_t		init (uint16_t);					// device present and communicating detector
 
-		uint8_t 	commandAsciiRead (uint8_t cmd, uint16_t *data, uint8_t count);
+		uint8_t 	commandAsciiRead (int cmd, size_t count, char *data);
 
 		uint8_t		get_temperature_data (void);
 

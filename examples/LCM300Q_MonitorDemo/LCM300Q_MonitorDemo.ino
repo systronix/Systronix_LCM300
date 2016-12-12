@@ -58,10 +58,9 @@ Systronix_LCM300 lcm300_5F;    // supply at default address
 /* ========== SETUP ========== */
 void setup(void) 
 {
-  uint16_t raw16=0;  // place to put what we just read
-//  uint16_t wrt16=0;  // temp write variable
+
   int8_t stat = -1;
-//  int16_t temp_int16 = 0;
+
   
   Serial.begin(115200);     // use max baud rate
   // Teensy3 doesn't reset with Serial Monitor as do Teensy2/++2, or wait for Serial Monitor window
@@ -73,6 +72,8 @@ void setup(void)
   
   Serial.print("LCM300Q Library Test Code at 0x");
   Serial.println(lcm300_5F.BaseAddr, HEX);
+
+   lcm300_5F.begin();
    
 //  int8_t flag = -1;  // I2C returns 0 if no error
   
@@ -84,16 +85,19 @@ void setup(void)
   Serial.println("Setup Complete!");
   Serial.println(" "); 
   
-  if (1 == DEBUG)
-  {
-    Serial.println("sec deg C");
-  }
+
 }
 
 
 uint16_t good=0;
 uint16_t bad=0;
 uint16_t raw16;
+
+char ascii[32];
+
+uint8_t num_read;
+
+size_t read_cnt;
 
 /* ========== LOOP ========== */
 void loop(void) 
@@ -102,12 +106,25 @@ void loop(void)
   int8_t stat=-1;  // status flag
   float temp;
   
-  Serial.print("@");
-  Serial.print(millis()/1000);
-  Serial.print(" ");
+
+  Serial.printf("@%u\r\n", millis()/1000);
   
 
-  
+  read_cnt = 16;
+  num_read = lcm300_5F.commandAsciiRead (MFR_ID_CMD, read_cnt, ascii);
+  Serial.printf("%u mfr ID bytes read: %s\r\n", num_read, ascii);
+
+  read_cnt = 16;
+  num_read = lcm300_5F.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
+  Serial.printf("%u model bytes read: %s\r\n", num_read, ascii);
+
+  read_cnt = 16;
+  num_read = lcm300_5F.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
+  Serial.printf("%u revision bytes read: %s\r\n", num_read, ascii);
+ 
+  read_cnt = 16;
+  num_read = lcm300_5F.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
+  Serial.printf("%u location bytes read: %s\r\n", num_read, ascii); 
 
 
 
