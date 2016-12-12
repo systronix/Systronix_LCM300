@@ -20,37 +20,12 @@
 
 **/
 
-/** --------  Description ------------------------------------------------------
 
-See the Artesyn LCM300 family data sheet at 
-https://www.artesyn.com/power/power-supplies/websheet/491/lcm300-series
-This library is written using data sheet Rev.05.03.16_#1.2l
-
-The LCM300 series includes 24V output, the LCM300Q. LCM300U is 36V, LCM300W is 48V.
-
-All support PMBus Version 1.1 at up to 100 KHz
-Get the PMBus spec free here: http://pmbus.org/Specifications/OlderSpecifications
-All CLM300 series have some commands in common. Other commands differ slightly
-depending on the version due to different output voltage ranges. For example
-command 21h, VOUT_COMMAND has a different default value and range for each
-supply in the family. For the LCM300Q, 21h default is 0x2FE6 = 24V and the
-range is 19.09 to 33.60 volts. However VOUT_MAX (command 24h) limits max output
-voltage to 0x3999 = 28.9V
-
-
-------------------------------------------------------------------------------*/
-
-/** --------  Device Addressing --------
-LCM300 base address is 8-bit address 0xBE including R/W bit as 0 (B 1011 111x) where x is R/W
-Or by the Arduino convetion that is 7-bit address 0x5F ignoring the R/W bit
-
-The address bits A2, A1, A0 are internally pulled up to 2.7V so by default they are asserted
--------------------------------------*/
 
 #include <Arduino.h>
 
 #if defined (__MK20DX256__) || defined (__MK20DX128__) 	// Teensy 3.1 or 3.2 || Teensy 3.0
-#include <i2c_t3.h>		
+#include <i2c_t3.h>	// for Teensy 3 family use optimized and more robust library
 #else
 #include <Wire.h>	// for AVR I2C library
 #endif
@@ -60,19 +35,11 @@ The address bits A2, A1, A0 are internally pulled up to 2.7V so by default they 
 #define		ABSENT	0xFD
 
 /** --------  Register Addresses --------
-The two lsb of the pointer register hold the register bits, which
-are used to address one of the four directly-accessible registers.
 
-There are four pointer addresses:
-00  Temperature Register (Read Only) 12-13 bits in ms position
-	bit 0 in LS byte is 1 if in 13-bit 'extended mode' (EM)
-	If temp is positive (msb=0) the value is just the binary value.
-	If temp is negative (msb=0) the value is in 2's complement form,
-	so take the whole binary value, complement it, and add 1.
-01  Configuration Register (Read/Write) 16 bits, MSB first
-10  TLOW Limit Register (Read/Write)
-11  THIGH Limit Register (Read/Write)
 */
+
+#define LCM300_BASE_MIN 			0x58  // 7-bit address not including R/W bit
+#define LCM300_BASE_MAX 			0x5F  // 7-bit address not including R/W bit
 
 #define LCM300_PAGE_CMD 			0x00  // 8-bit read-only ???
 
@@ -104,7 +71,15 @@ There are four pointer addresses:
 // LCM300 0x3999 = 28.9V
 // LCM300U 0x5666 = 43.2V
 // LCM300W 0x3C0 = 60V
-#define LCM300_VOUT_MAX_CMD 		0x24  // 16-bit max output voltage, read-only
+#define LCM300_VOUT_MAX_CMD 		0x24	// 16-bit max output voltage, read-only
+
+#define LCM300_READ_VOUT_CMD		0x8B	// 16-bit measured output voltage
+#define LCM300_READ_IOUT_CMD		0x8C	// 16-bit measured output current
+
+// MFR ID and product data area, 0x99-0x9F ASCII data, 0xA0-0xAB "linear" data format 
+// 0x99-0x
+#define MFR_ID_CMD					0x99	// 7 bytes should be ASCII "Artesyn"
+#define MFR_MODEL_CMD				0x9A	// 7 bytes such as "LCM300Q"
 
 
 
@@ -118,18 +93,12 @@ class Systronix_LCM300
 
 	public:
 		// Instance-specific properties
-		/** Data for one instance of a LCM300 temp sensor.
-		Extended 13-bit mode is assumed (12-bit mode is only there for compatibility with older parts)
-		Error counters could be larger but then they waste more data in the typical case where they are zero.
-		Errors peg at max value for the data type: they don't roll over.
-		
-		Maybe different structs for data values and part control
+		/** Data for one instance of a LCM300 supply; up to 8 could be on the same network
+		Maybe different structs for data values and control?
 		**/
 		struct
 			{
-			uint16_t	raw_temp;						// most recent
-			uint16_t	t_high = 0xE480;				// preset to minimum temperature value (-55C in raw13 format)
-			uint16_t	t_low = 0x4B00;  				// preset to max temperature value (150C in raw13 format)
+
 			float		deg_c;        
 			float		deg_f;
 			bool		fresh;							// data is good and fresh TODO: how does one know that the data are not 'fresh'?
@@ -153,8 +122,8 @@ class Systronix_LCM300
 		void		begin (void);
 		uint8_t		init (uint16_t);					// device present and communicating detector
 
-		float		raw13ToC (uint16_t raw13);			// temperature conversion functions
-		float		raw13_to_F (uint16_t raw13);
+		uint8_t 	commandAsciiRead (uint8_t cmd, uint16_t *data, uint8_t count);
+
 		uint8_t		get_temperature_data (void);
 
 		uint8_t		writePointer (uint8_t pointer);		// i2c bus dependent functions
@@ -171,6 +140,6 @@ class Systronix_LCM300
 
 };
 
-extern Systronix_LCM300 tmp102;
+//extern Systronix_LCM300 lcm300;
 
 #endif /* SYSTRONIX_LCM300_h */
