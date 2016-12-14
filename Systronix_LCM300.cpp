@@ -46,7 +46,7 @@ The LCM300 series includes 24V output, the LCM300Q. LCM300U is 36V, LCM300W is 4
 
 /** -------- PMBus Support -------------------------------------------------------------------------
 
-All LCM300 series support PMBus Version 1.1 at up to 100 KHz. No 400 kHz possible.
+All LCM300 series support PMBus Version 2.2 at up to 100 KHz. No 400 kHz possible.
 
 Get the PMBus spec free here: http://pmbus.org/Specifications/OlderSpecifications
 
@@ -231,11 +231,12 @@ uint8_t Systronix_LCM300::readRegister (uint16_t *data)
 	return SUCCESS;
 	}
 
-//---------------------------< COMMAND READ >------------------------------------------------------
+//---------------------------< COMMAND ASCII READ >------------------------------------------------------
 /**
-  Read the 16-bit register addressed by the current pointer value, store the data at the location passed
+  Read the ASCII data received in response to cmd, store it in char array data
   
-  return 0 if no error, positive bytes read otherwise.
+  
+  return SUCCESS or FAIL
 */
 
 uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
@@ -265,14 +266,14 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 		return FAIL;
 		}
 
-	Serial.printf("%i bytes avail to read\r\n", count);	
+	Serial.printf("%i bytes avail\r\n", count);	
 
 
 	uint8_t index=0;
 	while (Wire.available())
 		{
 		char_read = Wire.read();
-		Serial.printf("0x%X:%c ", char_read, char_read);
+		Serial.printf("%u:0x%X/%c ", index, char_read, char_read);
 		data[index++] = char_read;
 		}
 

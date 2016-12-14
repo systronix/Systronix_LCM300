@@ -109,6 +109,11 @@ void loop(void)
 
   Serial.printf("@%u\r\n", millis()/1000);
   
+  
+
+  read_cnt = 4;
+  num_read = lcm300_5F.commandAsciiRead (PMBUS_REVISION_CMD, read_cnt, ascii);
+  Serial.printf("%u PMBus rev bytes read: %s\r\n", num_read, ascii);
 
   read_cnt = 16;
   num_read = lcm300_5F.commandAsciiRead (MFR_ID_CMD, read_cnt, ascii);

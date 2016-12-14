@@ -76,12 +76,15 @@
 #define LCM300_READ_VOUT_CMD		0x8B	// 16-bit measured output voltage
 #define LCM300_READ_IOUT_CMD		0x8C	// 16-bit measured output current
 
+// ASCII data
 // MFR ID and product data area, 0x99-0x9F ASCII data, 0xA0-0xAB "linear" data format 
 // 0x99-0x
 #define MFR_ID_CMD					0x099	// 7 bytes should be ASCII "Artesyn"
 #define MFR_MODEL_CMD				0x09A	// 7 bytes such as "LCM300Q"
 #define MFR_REVISION_CMD			0x09B	// 2 bytes such as "0A"
 #define MFR_LOCATION_CMD			0x09C	// 6 bytes
+
+#define PMBUS_REVISION_CMD			0x98	// 1 byte unsigned 0x22 = PMBus revision 2.2
 
 class Systronix_LCM300
 {
