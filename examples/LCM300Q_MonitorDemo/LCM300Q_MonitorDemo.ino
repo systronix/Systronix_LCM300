@@ -113,23 +113,27 @@ void loop(void)
 
   read_cnt = 4;
   num_read = lcm300_5F.commandAsciiRead (PMBUS_REVISION_CMD, read_cnt, ascii);
-  Serial.printf("%u PMBus rev bytes read: %s\r\n", num_read, ascii);
+  Serial.printf("%u PMBus rev bytes read: %s\r\n\n", num_read, ascii);
+
+  read_cnt = 4;
+  num_read = lcm300_5F.commandAsciiRead (COEFFICIENTS_CMD, read_cnt, ascii);
+  Serial.printf("%u Coefficients bytes read: %s\r\n\n", num_read, ascii);  
 
   read_cnt = 16;
   num_read = lcm300_5F.commandAsciiRead (MFR_ID_CMD, read_cnt, ascii);
-  Serial.printf("%u mfr ID bytes read: %s\r\n", num_read, ascii);
+  Serial.printf("%u mfr ID bytes read: %s\r\n\n", num_read, ascii);
 
   read_cnt = 16;
   num_read = lcm300_5F.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
-  Serial.printf("%u model bytes read: %s\r\n", num_read, ascii);
+  Serial.printf("%u model bytes read: %s\r\n\n", num_read, ascii);
 
   read_cnt = 16;
   num_read = lcm300_5F.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
-  Serial.printf("%u revision bytes read: %s\r\n", num_read, ascii);
+  Serial.printf("%u revision bytes read: %s\r\n\n", num_read, ascii);
  
   read_cnt = 16;
   num_read = lcm300_5F.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
-  Serial.printf("%u location bytes read: %s\r\n", num_read, ascii); 
+  Serial.printf("%u location bytes read: %s\r\n\n", num_read, ascii); 
 
 
 

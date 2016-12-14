@@ -86,6 +86,9 @@
 
 #define PMBUS_REVISION_CMD			0x98	// 1 byte unsigned 0x22 = PMBus revision 2.2
 
+#define COEFFICIENTS_CMD			0x30 	// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
+
+
 class Systronix_LCM300
 {
 	protected:

@@ -46,7 +46,9 @@ The LCM300 series includes 24V output, the LCM300Q. LCM300U is 36V, LCM300W is 4
 
 /** -------- PMBus Support -------------------------------------------------------------------------
 
-All LCM300 series support PMBus Version 2.2 at up to 100 KHz. No 400 kHz possible.
+All LCM300 series support PMBus Version 1.1 at up to 100 KHz. No 400 kHz possible. This is
+according to email from Artesyn tech support. Command 0x98 holds "22" as PMBus revision; what
+can this really mean?
 
 Get the PMBus spec free here: http://pmbus.org/Specifications/OlderSpecifications
 
@@ -234,7 +236,7 @@ uint8_t Systronix_LCM300::readRegister (uint16_t *data)
 //---------------------------< COMMAND ASCII READ >------------------------------------------------------
 /**
   Read the ASCII data received in response to cmd, store it in char array data
-  
+
   
   return SUCCESS or FAIL
 */
@@ -251,7 +253,7 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 
 	Wire.beginTransmission (_base);						// base address
 	written = Wire.write (cmd);							// PMBus command code
-	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition
+	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
 	Serial.printf("cmd 0x%X\r\n", cmd);
 
