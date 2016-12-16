@@ -275,7 +275,7 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 	while (Wire.available())
 		{
 		char_read = Wire.read();
-		Serial.printf("%u:0x%X/%c ", index, char_read, char_read);
+		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
 		data[index++] = char_read;
 		}
 

@@ -62,31 +62,43 @@
 #define LCM300_WP_ENABLE_ALL		0x00  // enable write to all writeable commands
 
 // Set output voltage.
-// LCM300 default 0x2FE6 = 24V
+// LCM300 default 0x2FE6 = 24V in Tech Note but these may all be wrong!
 // LCM300U default 0x3F9E = 36V
 // LCM300W default 0x2FEB = 48V
-#define LCM300_VOUT_COMMAND_CMD 	0x21  // 16-bit output voltage set, read/write
+#define VOUT_COMMAND_CMD 	0x21  // 16-bit output voltage set, read/write, returns 0x3033 and 0x3038
 
 // Read the max output voltage. 
 // LCM300 0x3999 = 28.9V
 // LCM300U 0x5666 = 43.2V
 // LCM300W 0x3C0 = 60V
-#define LCM300_VOUT_MAX_CMD 		0x24	// 16-bit max output voltage, read-only
+#define VOUT_MAX_CMD 		0x24	// 16-bit max output voltage, read-only, returns 0x3999, same as 0xA5
 
-#define LCM300_READ_VOUT_CMD		0x8B	// 16-bit measured output voltage
-#define LCM300_READ_IOUT_CMD		0x8C	// 16-bit measured output current
+#define READ_VOUT_CMD		0x8B	// 16-bit measured output voltage, returns 0x300F for 0x21 = 0x3033
+#define READ_IOUT_CMD		0x8C	// 16-bit measured output current
+#define READ_TEMPERATURE_2_CMD	0x8D	// 16-bit
+
+#define READ_FAN_SPEED_CMD	0x90 	//
 
 // ASCII data
 // MFR ID and product data area, 0x99-0x9F ASCII data, 0xA0-0xAB "linear" data format 
 // 0x99-0x
-#define MFR_ID_CMD					0x099	// 7 bytes should be ASCII "Artesyn"
-#define MFR_MODEL_CMD				0x09A	// 7 bytes such as "LCM300Q"
-#define MFR_REVISION_CMD			0x09B	// 2 bytes such as "0A"
-#define MFR_LOCATION_CMD			0x09C	// 6 bytes
+#define MFR_ID_CMD			0x99	// 7 bytes should be ASCII "Artesyn"
+#define MFR_MODEL_CMD		0x9A	// 7 bytes such as "LCM300Q"
+#define MFR_REVISION_CMD	0x9B	// 2 bytes such as "0A"
+#define MFR_LOCATION_CMD	0x9C	// 6 bytes
+#define MFR_SERIAL_CMD		0x9D	// ascii YYWW or YYMMDD?
 
-#define PMBUS_REVISION_CMD			0x98	// 1 byte unsigned 0x22 = PMBus revision 2.2
+#define PMBUS_REVISION_CMD	0x98	// 1 byte unsigned 0x22 = PMBus revision 2.2
 
-#define COEFFICIENTS_CMD			0x30 	// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
+#define COEFFICIENTS_CMD	0x30 	// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
+
+#define VOUT_MODE_CMD		0x20	// read read-only, 0x17 which means VID mode but 0x7 is not listed in PMBus spec
+
+#define MFR_VOUT_MIN_CMD	0xA4	// linear returns 0x2666, should be 19.2V
+#define MFR_VOUT_MAX_CMD	0xA5	// linear returns 0x3999, should be 28.8V
+#define MFR_IOUT_MAX_CMD	0xA6	// linear returns 0xD3A0 = 14.5 amps
+
+
 
 
 class Systronix_LCM300
