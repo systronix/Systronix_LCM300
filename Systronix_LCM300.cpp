@@ -233,15 +233,24 @@ uint8_t Systronix_LCM300::readRegister (uint16_t *data)
 	return SUCCESS;
 	}
 
-//---------------------------< COMMAND ASCII READ >------------------------------------------------------
+//---------------------------< COMMAND RAW READ >------------------------------------------------------
 /**
-  Read the ASCII data received in response to cmd, store it in char array data
+Read the RAW data received in response to cmd, store it in char array data
+Data could be any type, so attempt to print as string may be unreadable.
+But it is useful for debug and exploration
 
-  
-  return SUCCESS or FAIL
+Note that PMBus reads are not memory locations, and whatever number you request seems to be "available"
+even if the data is really junk. For example you can "read" 'm' number of bytes from a command which only 
+returns 'n' actual data bytes. Usually n+1 is some consistent value <0xFF and n+[2,3,...] are 0xFF
+
+Note that byte 0 of LCM300 ascii commands is the length of the string, and it is not null terminated.
+
+@TODO implement ABSENT check
+
+@return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
+uint8_t Systronix_LCM300::commandRawRead (int cmd, size_t count, char *data)
 	{
 	// if (!control.exists)								// exit immediately if device does not exist
 	// {
@@ -255,11 +264,83 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 	written = Wire.write (cmd);							// PMBus command code
 	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
+	Serial.printf("cmd 0x%X, ", cmd);
+
+	char char_read;
+	// now try to read the ascii data at that read command location
+
+	if (count != Wire.requestFrom(_base, count, I2C_STOP))
+		{
+		Serial.println("raw read wrong number of bytes available");
+		control.ret_val = Wire.status();				// to get error value
+		tally_errors (control.ret_val);					// increment the appropriate counter
+		return FAIL;
+		}
+
+	Serial.printf(" read %i bytes\r\n", count);	
+
+
+	uint8_t index=0;
+	while (Wire.available())
+		{
+		char_read = Wire.read();
+		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
+		data[index++] = char_read;
+		}
+
+	Serial.println();
+	return SUCCESS;
+	}
+
+//---------------------------< COMMAND ASCII READ >------------------------------------------------------
+/**
+Read the ascii data received in response to cmd, store it in char array data
+The first byte of ascii data on the LCM300 is the length which value is always >=2 and < 16, if not, 
+make 0th byte of array null and return FAIL.
+Of course the first byte could actually be the LSB of a linear number, so we check further.
+If first byte < 16, try to read that many ascii bytes. If each is not ascii range, make 0th byte of array null
+and return FAIL.
+If data appears to be ASCII, copy data to char array and null terminate.
+
+@TODO implement ABSENT check
+
+@return SUCCESS, FAIL, or ABSENT
+*/
+
+uint8_t Systronix_LCM300::commandAsciiRead (int cmd, char *data)
+	{
+	// if (!control.exists)								// exit immediately if device does not exist
+	// {
+	// 	Serial.println("No control");
+	// 	return ABSENT;
+	// }
+
+	uint8_t written;	// # of bytes written 
+	uint8_t count;		// # bytes to read
+
+	Wire.beginTransmission (_base);						// base address
+	written = Wire.write (cmd);							// PMBus command code
+	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+
 	Serial.printf("cmd 0x%X\r\n", cmd);
 
 	char char_read;
 	// now try to read the ascii data at that read command location
 
+	// 0th byte is the length of the ascii data, always >=2 and < 16 for LCM300
+	count = 1;
+	if (count != Wire.requestFrom(_base, count, I2C_NOSTOP))
+	{
+		data[0] = 0;	// null term
+		return FAIL;
+	}
+	else
+	{
+		// should read length of ascii data avail at this command
+		char_read = Wire.read();
+	}
+
+	count = char_read;	// length of ascii data
 	if (count != Wire.requestFrom(_base, count, I2C_STOP))
 		{
 		Serial.println("ascii read wrong number of bytes available");
@@ -282,5 +363,3 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t count, char *data)
 	Serial.println();
 	return SUCCESS;
 	}
-
-

@@ -97,6 +97,8 @@ char ascii[32];
 
 uint8_t num_read;
 
+uint8_t result;   // SUCCESS, FAIL, or ABSENT defined in library header
+
 size_t read_cnt;
 
 /* ========== LOOP ========== */
@@ -112,77 +114,77 @@ void loop(void)
   
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (PMBUS_REVISION_CMD, read_cnt, ascii);
-  Serial.printf("%u PMBus rev bytes read: %s\r\n\n", num_read, ascii);
+  result = lcm300_5F.commandRawRead (PMBUS_REVISION_CMD, read_cnt, ascii);
+  Serial.printf("PMBus rev: %s\r\n\n", ascii);
   delay(50);
 
   read_cnt = 2;
-  num_read = lcm300_5F.commandAsciiRead (VOUT_MODE_CMD, read_cnt, ascii);
-  Serial.printf("%u Vout Mode bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (VOUT_MODE_CMD, read_cnt, ascii);
+  Serial.printf("Vout Mode: %s\r\n\n", ascii);  
   delay(50);
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (READ_TEMPERATURE_2_CMD, read_cnt, ascii);
-  Serial.printf("%u Temperature 2 bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (READ_TEMPERATURE_2_CMD, read_cnt, ascii);
+  Serial.printf("Temperature 2: %s\r\n\n", ascii);  
   delay(50);
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (VOUT_COMMAND_CMD, read_cnt, ascii);
-  Serial.printf("%u Vout Set Command bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (VOUT_COMMAND_CMD, read_cnt, ascii);
+  Serial.printf("Vout Set Command: %s\r\n\n", ascii);  
   delay(50);
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (READ_VOUT_CMD, read_cnt, ascii);
-  Serial.printf("%u Read Vout bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (READ_VOUT_CMD, read_cnt, ascii);
+  Serial.printf("Read Vout: %s\r\n\n", ascii);  
   delay(50);
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (MFR_VOUT_MIN_CMD, read_cnt, ascii);
-  Serial.printf("%u Vout Min bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (MFR_VOUT_MIN_CMD, read_cnt, ascii);
+  Serial.printf("Vout Min: %s\r\n\n", ascii);  
   
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (MFR_VOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("%u Mfr Vout Max bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (MFR_VOUT_MAX_CMD, read_cnt, ascii);
+  Serial.printf("Mfr Vout Max: %s\r\n\n", ascii);  
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (VOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("%u Vout Max bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (VOUT_MAX_CMD, read_cnt, ascii);
+  Serial.printf("Vout Max: %s\r\n\n", ascii);  
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (MFR_IOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("%u Iout Max bytes read: %s\r\n\n", num_read, ascii);   
+  result = lcm300_5F.commandRawRead (MFR_IOUT_MAX_CMD, read_cnt, ascii);
+  Serial.printf("%u Iout Max: %s\r\n\n", ascii);   
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (READ_IOUT_CMD, read_cnt, ascii);
-  Serial.printf("%u Read Iout bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (READ_IOUT_CMD, read_cnt, ascii);
+  Serial.printf("Iout: %s\r\n\n", ascii);  
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (MFR_IOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("%u Iout Max bytes read: %s\r\n\n", num_read, ascii);  
+  result = lcm300_5F.commandRawRead (MFR_IOUT_MAX_CMD, read_cnt, ascii);
+  Serial.printf("Iout Max: %s\r\n\n", ascii);  
 
   read_cnt = 16;
-  num_read = lcm300_5F.commandAsciiRead (MFR_ID_CMD, read_cnt, ascii);
-  Serial.printf("%u mfr ID bytes read: %s\r\n\n", num_read, ascii);
+  result = lcm300_5F.commandRawRead (MFR_ID_CMD, read_cnt, ascii);
+  Serial.printf("mfr ID: %s\r\n\n", ascii);
 
   read_cnt = 16;
-  num_read = lcm300_5F.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
-  Serial.printf("%u model bytes read: %s\r\n\n", num_read, ascii);
+  result = lcm300_5F.commandRawRead (MFR_MODEL_CMD, read_cnt, ascii);
+  Serial.printf("model: %s\r\n\n", ascii);
 
   read_cnt = 16;
-  num_read = lcm300_5F.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
-  Serial.printf("%u revision bytes read: %s\r\n\n", num_read, ascii);
+  result = lcm300_5F.commandRawRead (MFR_REVISION_CMD, read_cnt, ascii);
+  Serial.printf("revision: %s\r\n\n", ascii);
  
   read_cnt = 16;
-  num_read = lcm300_5F.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
-  Serial.printf("%u location bytes read: %s\r\n\n", num_read, ascii); 
+  result = lcm300_5F.commandRawRead (MFR_LOCATION_CMD, read_cnt, ascii);
+  Serial.printf("location: %s\r\n\n", result, ascii); 
 
   read_cnt = 8;
-  num_read = lcm300_5F.commandAsciiRead (MFR_SERIAL_CMD, read_cnt, ascii);
-  Serial.printf("%u Mfg Date bytes read: %s\r\n\n", num_read, ascii); 
+  result = lcm300_5F.commandRawRead (MFR_SERIAL_CMD, read_cnt, ascii);
+  Serial.printf("Mfg Date: %s\r\n\n", ascii); 
 
   read_cnt = 4;
-  num_read = lcm300_5F.commandAsciiRead (READ_FAN_SPEED_CMD, read_cnt, ascii);
-  Serial.printf("%u Fan speed bytes read: %s\r\n\n", num_read, ascii); 
+  result = lcm300_5F.commandRawRead (READ_FAN_SPEED_CMD, read_cnt, ascii);
+  Serial.printf("Fan speed: %s\r\n\n", ascii); 
 
 
   Serial.println();
