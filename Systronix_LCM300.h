@@ -140,7 +140,7 @@ class Systronix_LCM300
 		uint8_t		init (uint16_t);					// device present and communicating detector
 
 		uint8_t 	commandRawRead (int cmd, size_t count, char *data);
-		uint8_t 	commandAsciiRead (int cmd, char *data);
+		uint8_t 	commandAsciiRead (int cmd, size_t length, char *data);
 
 		uint8_t		get_temperature_data (void);
 

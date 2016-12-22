@@ -166,6 +166,10 @@ void loop(void)
   result = lcm300_5F.commandRawRead (MFR_ID_CMD, read_cnt, ascii);
   Serial.printf("mfr ID: %s\r\n\n", ascii);
 
+  result = lcm300_5F.commandAsciiRead(MFR_ID_CMD, 7, ascii);
+  Serial.printf("mfr ID: %s\r\n\n", ascii);
+
+
   read_cnt = 16;
   result = lcm300_5F.commandRawRead (MFR_MODEL_CMD, read_cnt, ascii);
   Serial.printf("model: %s\r\n\n", ascii);
@@ -176,7 +180,7 @@ void loop(void)
  
   read_cnt = 16;
   result = lcm300_5F.commandRawRead (MFR_LOCATION_CMD, read_cnt, ascii);
-  Serial.printf("location: %s\r\n\n", result, ascii); 
+  Serial.printf("location: %s\r\n\n", ascii); 
 
   read_cnt = 8;
   result = lcm300_5F.commandRawRead (MFR_SERIAL_CMD, read_cnt, ascii);

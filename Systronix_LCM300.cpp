@@ -294,20 +294,25 @@ uint8_t Systronix_LCM300::commandRawRead (int cmd, size_t count, char *data)
 
 //---------------------------< COMMAND ASCII READ >------------------------------------------------------
 /**
-Read the ascii data received in response to cmd, store it in char array data
+Read at most length chars of ascii data received in response to cmd, store it in char array data
 The first byte of ascii data on the LCM300 is the length which value is always >=2 and < 16, if not, 
 make 0th byte of array null and return FAIL.
 Of course the first byte could actually be the LSB of a linear number, so we check further.
-If first byte < 16, try to read that many ascii bytes. If each is not ascii range, make 0th byte of array null
+If first byte < length, try to read that many ascii bytes. If each is not ascii range, make 0th byte of array null
 and return FAIL.
 If data appears to be ASCII, copy data to char array and null terminate.
+
+The PMBus wants you to send the command, then a single restart to read the data. It doesn't like multiple restarts
+to read the data piecemeal. This means you can't read the length byte and then read the data in separate read cycles.
+To read just the length it would be necessary to then start another command cycle. Which might be an OK approach.
+Then this function could read only the exact ascii data available.
 
 @TODO implement ABSENT check
 
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::commandAsciiRead (int cmd, char *data)
+uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t length, char *data)
 	{
 	// if (!control.exists)								// exit immediately if device does not exist
 	// {
@@ -316,49 +321,68 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, char *data)
 	// }
 
 	uint8_t written;	// # of bytes written 
-	uint8_t count;		// # bytes to read
+	size_t count;		// # bytes to read, generally length + 2
 
 	Wire.beginTransmission (_base);						// base address
 	written = Wire.write (cmd);							// PMBus command code
 	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
-	Serial.printf("cmd 0x%X\r\n", cmd);
+	Serial.printf("ascii read, cmd: 0x%X\r\n", cmd);
 
 	char char_read;
 	// now try to read the ascii data at that read command location
 
 	// 0th byte is the length of the ascii data, always >=2 and < 16 for LCM300
+	// add length byte and one more for good measure
 	count = 1;
-	if (count != Wire.requestFrom(_base, count, I2C_NOSTOP))
-	{
-		data[0] = 0;	// null term
-		return FAIL;
-	}
-	else
-	{
-		// should read length of ascii data avail at this command
-		char_read = Wire.read();
-	}
-
-	count = char_read;	// length of ascii data
 	if (count != Wire.requestFrom(_base, count, I2C_STOP))
 		{
-		Serial.println("ascii read wrong number of bytes available");
+		Serial.printf("ascii read of 1st byte failed\r\n");
+		data[0] = 0;	// null term
+		return FAIL;
+		}
+	else
+		{
+		// should read length of ascii data avail at this command
+		char_read = Wire.read();
+		Serial.printf("ascii length byte = %u\r\n", (uint8_t) char_read);
+		}
+
+	Wire.beginTransmission (_base);						// base address
+	written = Wire.write (cmd);							// PMBus command code
+	Wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+
+	// now read the ascii data based on length we already read, but we re-read the length byte
+	count = char_read + 1;	// length of ascii data
+	if (count != Wire.requestFrom(_base, count, I2C_STOP))
+		{
+		Serial.printf("ascii data chars failed");
 		control.ret_val = Wire.status();				// to get error value
 		tally_errors (control.ret_val);					// increment the appropriate counter
 		return FAIL;
 		}
-
-	Serial.printf("%i bytes avail\r\n", count);	
-
+	else
+		{
+		Serial.printf("%u ascii chars read\r\n", (uint8_t)count);	
+		}
 
 	uint8_t index=0;
 	while (Wire.available())
 		{
 		char_read = Wire.read();
 		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
-		data[index++] = char_read;
+		if (0 == index)
+			{
+				// discard length in byte 0
+			}
+		else 
+			{
+				data[index-1] = char_read;
+			}
+		index++;
 		}
+
+	if (index > 2) data[index-1] = 0x0; 	// null term
 
 	Serial.println();
 	return SUCCESS;
