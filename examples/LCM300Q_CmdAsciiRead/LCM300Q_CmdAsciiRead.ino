@@ -84,7 +84,8 @@ void setup(void)
    
 //  int8_t flag = -1;  // I2C returns 0 if no error
   
-  dtime = 1000;      // msec between samples, 1000 = 1 sec, 60,000 = 1 minute
+  dtime = 2000;      // msec between samples, 1000 = 1 sec, 60,000 = 1 minute
+
   Serial.print(" Interval is ");
   Serial.print(dtime/1000);
   Serial.print(" sec, ");
