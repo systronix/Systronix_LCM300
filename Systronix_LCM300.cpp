@@ -52,7 +52,7 @@ can this really mean?
 
 Get the PMBus spec free here: http://pmbus.org/Specifications/OlderSpecifications
 
-All CLM300 series have some commands in common. Other commands differ slightly
+All LCM300 series have some commands in common. Other commands differ slightly
 depending on the version due to different output voltage ranges. For example
 command 21h, VOUT_COMMAND has a different default value and range for each
 supply in the family. For the LCM300Q, 21h default is 0x2FE6 = 24V and the
@@ -243,7 +243,7 @@ Note that PMBus reads are not memory locations, and whatever number you request 
 even if the data is really junk. For example you can "read" 'm' number of bytes from a command which only 
 returns 'n' actual data bytes. Usually n+1 is some consistent value <0xFF and n+[2,3,...] are 0xFF
 
-Note that byte 0 of LCM300 ascii commands is the length of the string, and it is not null terminated.
+Note that byte 0 of LCM300 ascii commands is the length of the string, and string is not null terminated.
 
 @TODO implement ABSENT check
 

@@ -148,12 +148,6 @@ class Systronix_LCM300
 		uint8_t		writeRegister (uint8_t pointer, uint16_t data);
 		uint8_t		readRegister (uint16_t *data);
 
-		uint8_t		readTempDegC (float *tempC);		// these functions not yet implemented; all return FAIL
-		uint8_t		degCToRaw13 (uint16_t *raw13, float *tempC);
-		uint8_t		getOneShotDegC (float *tempC);
-		uint8_t		setModeOneShot (boolean mode);
-		uint8_t		setModeContinuous (int8_t rate);
-
 	private:
 
 };
