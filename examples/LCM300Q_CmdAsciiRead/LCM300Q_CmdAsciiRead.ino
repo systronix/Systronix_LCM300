@@ -48,7 +48,7 @@ Data for one instance of a LCM300 supply
 //static data tmp48;      // LCM300Q at base address 0x48
 
 
-Systronix_LCM300 lcm300_5F;    // supply at default address
+Systronix_LCM300 lcm300_58;    // supply at default address
 
 uint16_t good=0;
 uint16_t bad=0;
@@ -75,12 +75,33 @@ void setup(void)
   while((!Serial) && (millis()<10000));    // wait until serial monitor is open or timeout, which seems to fall through
 
   // start LCM300 library
-  lcm300_5F.setup(LCM300_BASE_MAX);
-  
-  Serial.print("LCM300Q Library Test Code at 0x");
-  Serial.println(lcm300_5F.BaseAddr, HEX);
+  lcm300_58.setup(LCM300_BASE_MIN);
 
-   lcm300_5F.begin();
+  Serial.print("LCM300Q Library Test Code at 0x");
+  Serial.println(lcm300_58.BaseAddr, HEX);
+
+  lcm300_58.begin();
+
+  Serial.printf("Build %s - %s\r\n%s\r\n", __DATE__, __TIME__, __FILE__);
+
+#if defined(__MKL26Z64__)
+  Serial.println( "CPU is T_LC");
+#elif defined(__MK20DX256__)
+  Serial.println( "CPU is T_3.1/3.2");
+#elif defined(__MK20DX128__)
+  Serial.println( "CPU is T_3.0");
+#elif defined(__MK64FX512__)
+  Serial.println( "CPU is T_3.5");
+#elif defined(__MK66FX1M0__)
+  Serial.println( "CPU is T_3.6");
+#endif
+  Serial.print( "F_CPU =");   Serial.println( F_CPU );
+  
+#if defined I2C_T3_H 
+  Serial.printf("Using i2c_t3 I2C library for Teensy\r\n");
+#endif
+
+
    
 //  int8_t flag = -1;  // I2C returns 0 if no error
   
@@ -112,24 +133,24 @@ void loop(void)
   
 
 
-  result = lcm300_5F.commandAsciiRead(MFR_ID_CMD, 7, ascii);
+  result = lcm300_58.commandAsciiRead(MFR_ID_CMD, 7, ascii);
   Serial.printf("mfr ID: %s\r\n\n", ascii);
 
 
   read_cnt = 16;
-  result = lcm300_5F.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
+  result = lcm300_58.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
   Serial.printf("model: %s\r\n\n", ascii);
 
   read_cnt = 16;
-  result = lcm300_5F.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
+  result = lcm300_58.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
   Serial.printf("revision: %s\r\n\n", ascii);
  
   read_cnt = 16;
-  result = lcm300_5F.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
+  result = lcm300_58.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
   Serial.printf("location: %s\r\n\n", ascii); 
 
   read_cnt = 8;
-  result = lcm300_5F.commandAsciiRead (MFR_SERIAL_CMD, read_cnt, ascii);
+  result = lcm300_58.commandAsciiRead (MFR_SERIAL_CMD, read_cnt, ascii);
   Serial.printf("Mfg Date: %s\r\n\n", ascii); 
 
 
