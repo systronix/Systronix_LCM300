@@ -184,15 +184,6 @@
 	"buffers":
 	[
 		{
-			"file": "Systronix_LCM300.h",
-			"settings":
-			{
-				"buffer_size": 5341,
-				"encoding": "Western (Windows 1252)",
-				"line_ending": "Windows"
-			}
-		},
-		{
 			"file": "Systronix_LCM300.cpp",
 			"settings":
 			{
@@ -201,10 +192,18 @@
 			}
 		},
 		{
-			"file": "examples/LCM300Q_CmdRawRead/LCM300Q_CmdRawRead.ino",
+			"file": "/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_MB85RC256V/ini_files/b2bwec.ini",
 			"settings":
 			{
-				"buffer_size": 5377,
+				"buffer_size": 3625,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "examples/LCM300Q_CmdAsciiRead/LCM300Q_CmdAsciiRead.ino",
+			"settings":
+			{
+				"buffer_size": 3857,
 				"line_ending": "Windows"
 			}
 		}
@@ -256,11 +255,21 @@
 	[
 		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300",
 		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/examples",
-		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/examples/LCM300Q_CmdRawRead",
-		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3"
+		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/examples/LCM300Q_CmdAsciiRead",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/examples",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/examples/advanced_master",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/examples/advanced_scanner",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/examples/basic_master"
 	],
 	"file_history":
 	[
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/examples/basic_master/basic_master.ino",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/README.md",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/Systronix_LCM300.h",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/Systronix_LCM300.cpp",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/i2c_t3/i2c_t3.h",
+		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_LCM300/examples/LCM300Q_CmdRawRead/LCM300Q_CmdRawRead.ino",
 		"/C/Users/BAB/Documents/code/Arduino/SALT_reptile/SALT_heater_manager.h",
 		"/C/Users/BAB/Documents/code/Arduino/W5500_Test/NtpTest/NtpTest.ino",
 		"/C/Users/BAB/Documents/code/Arduino/W5500_Test/DhcpStressTest-T3/DhcpStressTest-T3.ino",
@@ -382,13 +391,7 @@
 		"/C/Users/BAB/Documents/code/Arduino/libraries/SALT_UI/SALT_UI.h",
 		"/C/Users/BAB/Documents/code/Arduino/libraries/SALT_settings/SALT_settings.h",
 		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_MB85RC256V/examples/rcv_ini_file/sswec.ini",
-		"/C/Users/BAB/Documents/code/Arduino/SALT_CodeUpdates/b2bwec_20160804.ini",
-		"/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_MB85RC256V/readme.md",
-		"/E/BAB/Google Drive/NorthAmericanPet/SALT_Simple_ALternate_TINI/BackOffice/Reptile-Serial-Captures/serial_capture_diag_20160720b.txt",
-		"/C/Users/BAB/Documents/code/Arduino/libraries/SALT_UI/SALT_serial_event.code",
-		"/C/Users/BAB/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
-		"/E/projects/NAP_Jimmy/v2_3_firm/build.bat",
-		"/E/projects/NAP_Jimmy/v2_3_firm/lib/IO.a51"
+		"/C/Users/BAB/Documents/code/Arduino/SALT_CodeUpdates/b2bwec_20160804.ini"
 	],
 	"find":
 	{
@@ -406,6 +409,9 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"Wire11",
+			"Wire",
+			"I2C_BUS",
 			"SALT2",
 			"bboyes",
 			"read",
@@ -530,10 +536,7 @@
 			"SALT_settings",
 			"settings",
 			"logged_in_user",
-			"name",
-			"keyval",
-			"pin_entered",
-			"id_entered"
+			"name"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -541,6 +544,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"Wire1",
 			"SPIclock_write,",
 			"SPIclock_write",
 			"SPIclock",
@@ -673,16 +677,46 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "Systronix_LCM300.h",
+					"file": "Systronix_LCM300.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5341,
+						"buffer_size": 13547,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4628,
+								4659
+							]
+						],
+						"settings":
+						{
+							"function_name_status_row": 123,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1324.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/BAB/Documents/code/Arduino/libraries/Systronix_MB85RC256V/ini_files/b2bwec.ini",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3625,
 						"regions":
 						{
 						},
@@ -696,75 +730,44 @@
 						"settings":
 						{
 							"function_name_status_row": 0,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1680.0,
+						"translation.y": 1554.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "Systronix_LCM300.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 13547,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3803,
-								3803
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 91,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1134.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "examples/LCM300Q_CmdRawRead/LCM300Q_CmdRawRead.ino",
+					"file": "examples/LCM300Q_CmdAsciiRead/LCM300Q_CmdAsciiRead.ino",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5377,
+						"buffer_size": 3857,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								981,
-								981
+								2957,
+								2957
 							]
 						],
 						"settings":
 						{
-							"function_name_status_row": -1,
+							"function_name_status_row": 116,
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1554.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -837,7 +840,7 @@
 		[
 			[
 				"",
-				"C:\\Users\\BAB\\Documents\\code\\Arduino\\SALT_reptile\\SALT_reptile.sublime-project"
+				"C:\\Users\\BAB\\Documents\\code\\Arduino\\W5500_Test\\W5500Test.sublime-project"
 			]
 		],
 		"width": 380.0
