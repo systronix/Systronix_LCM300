@@ -38,6 +38,19 @@ Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
  - Also included is an example/test program 
  - See the source code for plenty of explanatory comments
 
+###
+#define I2C_BUS_ENABLE 4
+	Using library Systronix_LCM300 in folder: C:\Users\BAB\Documents\code\Arduino\libraries\Systronix_LCM300 (legacy)
+	Using library i2c_t3 in folder: C:\Users\BAB\Documents\code\Arduino\libraries\i2c_t3 (legacy)
+	Sketch uses 46236 bytes (17%) of program storage space. Maximum is 262144 bytes.
+	Global variables use 6772 bytes (10%) of dynamic memory, leaving 58764 bytes for local variables. Maximum is 65536 bytes.
+
+#define I2C_BUS_ENABLE 2
+Using library Systronix_LCM300 in folder: C:\Users\BAB\Documents\code\Arduino\libraries\Systronix_LCM300 (legacy)
+Using library i2c_t3 in folder: C:\Users\BAB\Documents\code\Arduino\libraries\i2c_t3 (legacy)
+Sketch uses 46236 bytes (17%) of program storage space. Maximum is 262144 bytes.
+Global variables use 6772 bytes (10%) of dynamic memory, leaving 58764 bytes for local variables. Maximum is 65536 bytes.
+
 ### TODO
  - add doxygen docs
 
