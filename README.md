@@ -1,6 +1,10 @@
 # Systronix_LCM300
 Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
 
+## Branches
+- SALT2v1_PowerDist2v0 supports the latest version of those boards
+- SALT2_PowerDist1 the old Master, supports SALT 2v0 and Power Dist 1v0, needs a special crossover cable between SALT and Power Dist with the swapped pins on the SALT end. SALT J1.2 -> PowerDist J2.1, SALT J1.3 -> PD J2.6, J1.1 -> J2.3, etc per schematics. This applies only to this revision of these boards.
+
 ## LCM300 Key Features
  - Active PFC
  - High MTBF

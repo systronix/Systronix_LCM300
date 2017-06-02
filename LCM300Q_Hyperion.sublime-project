@@ -8,6 +8,7 @@
 			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\i2c_t3"
 		},
 		{
+<<<<<<< HEAD
 			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\Systronix_PCA9557"
 		},
 		{
@@ -15,6 +16,15 @@
 		},
 		{
 			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\SALT_power_FRU"
+=======
+			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\SALT_PowerFRU"
+		},
+		{
+			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\Systronix_PCA9557"
+		},
+		{
+			"path": "C:\\Users\\BAB\\Documents\\code\\Arduino\\libraries\\Systronix_TMP102"
+>>>>>>> b99aa0032474ba0aca4fc0214fd6cad2e5eac790
 		}
 	]
 }

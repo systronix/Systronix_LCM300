@@ -136,7 +136,7 @@ uint8_t Systronix_LCM300::init (uint16_t config)
 	}
 
 
-//---------------------------< T A L L Y _ E R R O R S >------------------------------------------------------
+//---------------------------< TALLY ERRORS >------------------------------------------------------
 //
 // Here we tally errors.  This does not answer the 'what to do in the event of these errors' question; it just
 // counts them.  If the device does not ack the address portion of a transaction or if we get a timeout error,
@@ -173,12 +173,7 @@ void Systronix_LCM300::tally_errors (uint8_t error)
 	}
 
 
-
-
-
-
-
-//---------------------------< W R I T E R E G I S T E R >----------------------------------------------------
+//---------------------------< WRITE REGISTER >----------------------------------------------------
 /**
 Param pointer is the LCM300Q register into which to write the data
 data is the 16 bits to write.
@@ -211,7 +206,7 @@ uint8_t Systronix_LCM300::writeRegister (uint8_t pointer, uint16_t data)
 	}
 
 
-//---------------------------< R E A D   C O M M A N D >--------------------------------------------
+//---------------------------< READ REGISTER >-----------------------------------------------------
 /**
   Read the 16-bit register addressed by the command, store the data at the location passed
   
@@ -235,7 +230,7 @@ uint8_t Systronix_LCM300::readRegister (uint16_t *data)
 	return SUCCESS;
 	}
 
-//---------------------------< COMMAND RAW READ >------------------------------------------------------
+//---------------------------< COMMAND RAW READ >--------------------------------------------------
 /**
 Read the RAW data received in response to cmd, store it in char array data
 Data could be any type, so attempt to print as string may be unreadable.
