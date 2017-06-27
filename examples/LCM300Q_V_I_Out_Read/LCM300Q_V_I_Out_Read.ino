@@ -68,7 +68,7 @@ void setup(void)
   while((!Serial) && (millis()<10000));    // wait until serial monitor is open or timeout, which seems to fall through
 
   // start LCM300 library
-  lcm300_5F.setup(LCM300_BASE_MAX);
+  lcm300_5F.setup(LCM300_BASE_MIN);
   
   Serial.print("LCM300Q Library Test Code, Raw Read, PMBus at 0x");
   Serial.println(lcm300_5F.BaseAddr, HEX);
