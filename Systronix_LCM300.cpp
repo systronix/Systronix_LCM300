@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*!
-	@file		Systronix_LCM300Q.cpp
+	@file		Systronix_LCM300Q.cpp MASTER
 	
 	@author		B Boyes (Systronix Inc)
     @license	TBD (see license.txt)	
@@ -108,7 +108,8 @@ void Systronix_LCM300::setup(uint8_t base)
 
 void Systronix_LCM300::begin(void)
 	{
-	Wire1.begin(_base);	// join I2C as master
+	// Wire1.begin(mode, address, pins, pullup, rate);
+	Wire1.begin(I2C_MASTER, _base, I2C_PINS_29_30, I2C_PULLUP_EXT, 100000);	// join I2C as master
 	}
 
 
@@ -130,7 +131,7 @@ uint8_t Systronix_LCM300::init (uint16_t config)
 		}
 	
 	control.exists = true;								// if here, we appear to have communicated with
-	return SUCCESS;										// the tmp102
+	return SUCCESS;										// the LCM300
 	}
 
 
