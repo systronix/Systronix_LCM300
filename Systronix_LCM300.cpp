@@ -44,7 +44,7 @@ Phone and e-mail communication with Artesyn technical support
 
 The LCM300 series includes 24V output, the LCM300Q. LCM300U is 36V, LCM300W is 48V.
 
-/** -------- PMBus Support -------------------------------------------------------------------------
+-------- PMBus Support -------------------------------------------------------------------------
 
 All LCM300 series support PMBus Version 1.1 at up to 100 KHz. No 400 kHz possible. This is
 according to email from Artesyn tech support. Command 0x98 holds "22" as PMBus revision; what
@@ -121,7 +121,7 @@ void Systronix_LCM300::begin(void)
 
 uint8_t Systronix_LCM300::init (uint16_t config)
 	{
-	uint8_t written;
+//	uint8_t written;
 	
 	Wire1.beginTransmission (_base);						// base address
 

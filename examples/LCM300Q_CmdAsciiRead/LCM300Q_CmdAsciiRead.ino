@@ -66,7 +66,7 @@ size_t read_cnt;
 void setup(void) 
 {
 
-  int8_t stat = -1;
+//  int8_t stat = -1;
 
   
   Serial.begin(115200);     // use max baud rate
@@ -125,8 +125,8 @@ void setup(void)
 void loop(void) 
 {
 //  int16_t temp0;
-  int8_t stat=-1;  // status flag
-  float temp;
+//  int8_t stat=-1;  // status flag
+//  float temp;
   
 
   Serial.printf("@%u\r\n", millis()/1000);
