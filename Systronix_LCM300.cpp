@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*!
-	@file		Systronix_LCM300Q.cpp
+	@file		Systronix_LCM300Q.cpp SALT2v1_PowerDist2v0
 	
 	@author		B Boyes (Systronix Inc)
     @license	TBD (see license.txt)	
@@ -82,7 +82,6 @@ you can change their contents.
 
 #include <Systronix_LCM300.h>	
 
-
 //---------------------------< S E T U P >--------------------------------------------------------------------
 /*!
 	@brief  Instantiates a new LCM300Q class to use the given base address
@@ -132,7 +131,7 @@ uint8_t Systronix_LCM300::init (uint16_t config)
 		}
 	
 	control.exists = true;								// if here, we appear to have communicated with
-	return SUCCESS;										// the tmp102
+	return SUCCESS;										// the LCM300
 	}
 
 
