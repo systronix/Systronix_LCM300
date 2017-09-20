@@ -89,27 +89,42 @@ you can change their contents.
 			Add constructor(void) for default address of 0x5F
 */
 
-void Systronix_LCM300::setup(uint8_t base)
+uint8_t Systronix_LCM300::setup (uint8_t base, i2c_t3 wire, char* name)
 	{
-	_base = base;
-	BaseAddr = base;
+	if ((LCM300_BASE_MIN > base) || (LCM300_BASE_MAX < base))
+		{
+		tally_transaction (SILLY_PROGRAMMER);
+		return FAIL;
+		}
 
-//	struct data _data;			// instance of the data struct - not used
-//	_data.address = _base;		// struct - not used
+	_base = base;
+	_wire = wire;
+	_wire_name = wire_name = name;		// protected and public
+	return SUCCESS;
 	}
 
 
 //---------------------------< B E G I N >--------------------------------------------------------------------
 /*!
 	@brief  Join the I2C bus as a master at BaseAddr, 100 kHz clock
-
-	TODO slave address must still be supplied with beginTransmission so what good does it do to specify it here?
 */
 
-void Systronix_LCM300::begin(void)
+void Systronix_LCM300::begin (i2c_pins pins)
 	{
-	// Wire1.begin(mode, address, pins, pullup, rate);
-	Wire1.begin(I2C_MASTER, _base, I2C_PINS_29_30, I2C_PULLUP_EXT, 100000);	// join I2C as master
+	_wire.begin(I2C_MASTER, 0x00, pins, I2C_PULLUP_EXT, I2C_RATE_100);	// join I2C as master
+//	Serial.printf("LCM300 lib begin %s\r\n", _wire_name);
+	_wire.setDefaultTimeout(200000); // 200ms
+	}
+
+
+//---------------------------< B A S E _ G E T >--------------------------------------------------------------
+//
+// return the I2C base address for this instance
+//
+
+uint8_t Systronix_LCM300::base_get(void)
+	{
+	return _base;
 	}
 
 
@@ -118,121 +133,190 @@ void Systronix_LCM300::begin(void)
 // Attempts to write the pointer register.  If successful, sets control.exists true, else false.
 //
 
-uint8_t Systronix_LCM300::init (uint16_t config)
+uint8_t Systronix_LCM300::init (void)
 	{
-//	uint8_t written;
-	
-	Wire1.beginTransmission (_base);						// base address
+	_wire.beginTransmission (_base);					// base address
 
-  	if (Wire1.endTransmission())
+	if (_wire.endTransmission())
 		{
-		control.exists = false;							// unsuccessful i2c transaction
+		error.exists = false;							// unsuccessful i2c transaction
 		return FAIL;
 		}
 	
-	control.exists = true;								// if here, we appear to have communicated with
+	error.exists = true;								// if here, we appear to have communicated with
 	return SUCCESS;										// the LCM300
 	}
 
 
-//---------------------------< TALLY ERRORS >------------------------------------------------------
-//
-// Here we tally errors.  This does not answer the 'what to do in the event of these errors' question; it just
-// counts them.  If the device does not ack the address portion of a transaction or if we get a timeout error,
-// exists is set to false.  We assume here that the timeout error is really an indication that the automatic
-// reset feature of the i2c_t3 library failed to reset the device in which case, the device no longer 'exists'
-// for whatever reason.
-//
+//---------------------------< R E S E T _ B U S >------------------------------------------------------------
+/**
+	Invoke resetBus of whichever Wire net this class instance is using
+	@return nothing
+*/
+void Systronix_LCM300::reset_bus (void)
+{
+	_wire.resetBus();
+}
 
-void Systronix_LCM300::tally_errors (uint8_t error)
+
+//---------------------------< R E S E T _ B U S _ C O U N T _ R E A D >--------------------------------------
+/**
+	Return the resetBusCount of whichever Wire net this class instance is using
+	@return number of Wire net resets, clips at UINT32_MAX
+*/
+uint32_t Systronix_LCM300::reset_bus_count_read(void)
+{
+	return _wire.resetBusCountRead();
+}
+
+
+//---------------------------< T A L L Y _ T R A N S A C T I O N >--------------------------------------------
+/**
+Here we tally errors.  This does not answer the what-to-do-in-the-event-of-these-errors question; it just
+counts them.
+
+TODO: we should decide if the correct thing to do when slave does not ack, or arbitration is lost, or
+timeout occurs, or auto reset fails (states 2, 5 and 4, 7 ??? state numbers may have changed since this
+comment originally added) is to declare these addresses as non-existent.
+
+We need to decide what to do when those conditions occur if we do not declare the device non-existent.
+When a device is declared non-existent, what do we do then? (this last is more a question for the
+application than this library).  The questions in this TODO apply equally to other i2c libraries that tally
+these errors.
+
+Don't set error.exists = false here! These errors are likely recoverable. bab & wsk 170612
+
+This is the only place we set error.error_val()
+
+TODO use i2c_t3 error or status enumeration here in the switch/case
+*/
+
+void Systronix_LCM300::tally_transaction (uint8_t value)
 	{
-	switch (error)
+	if (value && (error.total_error_count < UINT64_MAX))
+		error.total_error_count++; 			// every time here incr total error count
+
+	error.error_val = value;
+
+	switch (value)
 		{
-		case 0:					// Wire1.write failed to write all of the data to tx_buffer
-			control.incomplete_write_count ++;
+		case SUCCESS:
+			if (error.successful_count < UINT64_MAX)
+				error.successful_count++;
 			break;
-		case 1:					// data too long from endTransmission() (rx/tx buffers are 259 bytes - slave addr + 2 cmd bytes + 256 data)
-		case 8:					// buffer overflow from call to status() (read - transaction never started)
-			control.data_len_error_count ++;
+		case 1:								// i2c_t3 and Wire: data too long from endTransmission() (rx/tx buffers are 259 bytes - slave addr + 2 cmd bytes + 256 data)
+			error.data_len_error_count++;
 			break;
-		case 2:					// slave did not ack address (write)
-		case 5:					// from call to status() (read)
-			control.rcv_addr_nack_count ++;
-			control.exists = false;
+#if defined I2C_T3_H
+		case I2C_TIMEOUT:
+			error.timeout_count++;			// 4 from i2c_t3; timeout from call to status() (read)
+#else
+		case 4:
+			error.other_error_count++;		// i2c_t3 and Wire: from endTransmission() "other error"
+#endif
 			break;
-		case 3:					// slave did not ack data (write)
-		case 6:					// from call to status() (read)
-			control.rcv_data_nack_count ++;
+		case 2:								// i2c_t3 and Wire: from endTransmission()
+		case I2C_ADDR_NAK:					// 5 from i2c_t3
+			error.rcv_addr_nack_count++;
 			break;
-		case 4:					// arbitration lost (write) or timeout (read/write) or auto-reset failed
-		case 7:					// arbitration lost from call to status() (read)
-			control.other_error_count ++;
-			control.exists=false;
+		case 3:								// i2c_t3 and Wire: from endTransmission()
+		case I2C_DATA_NAK:					// 6 from i2c_t3
+			error.rcv_data_nack_count++;
+			break;
+		case I2C_ARB_LOST:					// 7 from i2c_t3; arbitration lost from call to status() (read)
+			error.arbitration_lost_count++;
+			break;
+		case I2C_BUF_OVF:
+			error.buffer_overflow_count++;
+			break;
+		case I2C_SLAVE_TX:
+		case I2C_SLAVE_RX:
+			error.other_error_count++;		// 9 & 10 from i2c_t3; these are not errors, I think
+			break;
+		case WR_INCOMPLETE:					// 11; Wire.write failed to write all of the data to tx_buffer
+			error.incomplete_write_count++;
+			break;
+		case SILLY_PROGRAMMER:				// 12
+			error.silly_programmer_error++;
+			break;
+		default:
+			error.unknown_error_count++;
+			break;
 		}
 	}
 
 
-//---------------------------< WRITE REGISTER >----------------------------------------------------
+//---------------------------< R E G I S T E R _ W R I T E >--------------------------------------------------
 /**
 Param pointer is the LCM300Q register into which to write the data
 data is the 16 bits to write.
-returns 0 if no error, positive values for NAK errors
+returns SUCCESS or FAIL
 **/
 
-uint8_t Systronix_LCM300::writeRegister (uint8_t pointer, uint16_t data)
+uint8_t Systronix_LCM300::register_write (uint8_t pointer, uint16_t data)
 	{
-	uint8_t written;									// number of bytes written
+	uint8_t ret_val;
 
-	if (!control.exists)								// exit immediately if device does not exist
+	if (!error.exists)									// exit immediately if device does not exist
 		return ABSENT;
 
-	Wire1.beginTransmission (_base);						// base address
-	written = Wire1.write (pointer);						// pointer in 2 lsb
-	written += Wire1.write ((uint8_t)(data >> 8));		// write MSB of data
-	written += Wire1.write ((uint8_t)(data & 0x00FF));	// write LSB of data
+	_wire.beginTransmission (_base);					// base address
+	ret_val = _wire.write (pointer);					// pointer in 2 lsb
+	ret_val += _wire.write ((uint8_t)(data >> 8));		// write MSB of data
+	ret_val += _wire.write ((uint8_t)(data & 0x00FF));	// write LSB of data
 
-	if (3 != written)
+	if (3 != ret_val)
 		{
-		control.ret_val = 0;
-		tally_errors (control.ret_val);					// increment the appropriate counter
+		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
 		return FAIL;
 		}
+
+	ret_val = _wire.endTransmission();
 	
-  	if (SUCCESS == Wire1.endTransmission())
-		return SUCCESS;
-	tally_errors (control.ret_val);						// increment the appropriate counter
-	return FAIL;										// calling function decides what to do with the error
-	}
-
-
-//---------------------------< READ REGISTER >-----------------------------------------------------
-/**
-  Read the 16-bit register addressed by the command, store the data at the location passed
-  
-  return 0 if no error, positive bytes read otherwise.
-*/
-
-uint8_t Systronix_LCM300::readRegister (uint16_t *data)
-	{
-	if (!control.exists)								// exit immediately if device does not exist
-		return ABSENT;
-
-	if (2 != Wire1.requestFrom(_base, 2, I2C_STOP))
+	if (SUCCESS != ret_val)
 		{
-		control.ret_val = Wire1.status();				// to get error value
-		tally_errors (control.ret_val);					// increment the appropriate counter
-		return FAIL;
+		tally_transaction (ret_val);					// increment the appropriate counter
+		return FAIL;									// calling function decides what to do with the error
 		}
 
-	*data = (uint16_t)Wire1.read() << 8;
-	*data |= (uint16_t)Wire1.read();
+	tally_transaction (SUCCESS);
 	return SUCCESS;
 	}
 
-//---------------------------< COMMAND RAW READ >--------------------------------------------------
+
+//---------------------------< R E G I S T E R _ R E A D >-----------------------------------------------------
+//
+// Read the 16-bit register addressed by the command, store the data at the location passed
+//
+// returns SUCCESS or FAIL
+//
+
+uint8_t Systronix_LCM300::register_read (uint16_t *data)
+	{
+	uint8_t ret_val;
+
+	if (!error.exists)								// exit immediately if device does not exist
+		return ABSENT;
+
+	if (2 != _wire.requestFrom(_base, 2, I2C_STOP))
+		{
+		ret_val = _wire.status();					// to get error value
+		tally_transaction (ret_val);				// increment the appropriate counter
+		return FAIL;
+		}
+
+	*data = (uint16_t)_wire.readByte() << 8;
+	*data |= (uint16_t)_wire.readByte();
+
+	tally_transaction (SUCCESS);
+	return SUCCESS;
+	}
+
+
+//---------------------------< C O M M A N D _ R A W _ R E A D >----------------------------------------------
 /**
 Read the RAW data received in response to cmd, store it in char array data
-Data could be any type, so attempt to print as string may be unreadable.
+Data could be any type, so an attempt to print as string may be unreadable.
 But it is useful for debug and exploration
 
 Note that PMBus reads are not memory locations, and whatever number you request seems to be "available"
@@ -241,54 +325,56 @@ returns 'n' actual data bytes. Usually n+1 is some consistent value <0xFF and n+
 
 Note that byte 0 of LCM300 ascii commands is the length of the string, and string is not null terminated.
 
-@TODO implement ABSENT check
-
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::commandRawRead (int cmd, size_t count, char *data)
+uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 	{
-	// if (!control.exists)								// exit immediately if device does not exist
-	// {
-	// 	Serial.println("No control");
-	// 	return ABSENT;
-	// }
+	uint8_t ret_val;
+	char char_read;
 
-	uint8_t written;	// # of bytes written 
+	if (!error.exists)								// exit immediately if device does not exist
+		return ABSENT;
 
-	Wire1.beginTransmission (_base);						// base address
-	written = Wire1.write (cmd);							// PMBus command code
-	Wire1.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+	_wire.beginTransmission (_base);						// base address
+	ret_val = _wire.write (cmd);							// PMBus command code
+
+	if (1 != ret_val)
+		{
+		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
+		return FAIL;
+		}
+
+	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
 	Serial.printf("cmd 0x%X, ", cmd);
 
-	char char_read;
 	// now try to read the ascii data at that read command location
 
-	if (count != Wire1.requestFrom(_base, count, I2C_STOP))
+	if (count != _wire.requestFrom(_base, count, I2C_STOP))
 		{
 		Serial.println("raw read wrong number of bytes available");
-		control.ret_val = Wire1.status();				// to get error value
-		tally_errors (control.ret_val);					// increment the appropriate counter
+		ret_val = _wire.status();						// to get error value
+		tally_transaction (ret_val);					// increment the appropriate counter
 		return FAIL;
 		}
 
 	Serial.printf(" read %i bytes\r\n", count);	
 
-
 	uint8_t index=0;
-	while (Wire1.available())
+	while (_wire.available())
 		{
-		char_read = Wire1.read();
+		char_read = _wire.readByte();
 		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
 		data[index++] = char_read;
 		}
 
-	Serial.println();
+	Serial.printf ("\n");
 	return SUCCESS;
 	}
 
-//---------------------------< COMMAND ASCII READ >------------------------------------------------------
+
+//---------------------------< C O M M A N D _ A S C I I _ R E A D >------------------------------------------
 /**
 Read at most length chars of ascii data received in response to cmd, store it in char array data
 The first byte of ascii data on the LCM300 is the length which value is always >=2 and < 16, if not, 
@@ -303,58 +389,68 @@ to read the data piecemeal. This means you can't read the length byte and then r
 To read just the length it would be necessary to then start another command cycle. Which might be an OK approach.
 Then this function could read only the exact ascii data available.
 
-@TODO implement ABSENT check
-
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t length, char *data)
+uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data)
 	{
-	// if (!control.exists)								// exit immediately if device does not exist
-	// {
-	// 	Serial.println("No control");
-	// 	return ABSENT;
-	// }
+	uint8_t ret_val;
+	size_t count;							// # bytes to read, generally length + 2
+	char char_read;
 
-	uint8_t written;	// # of bytes written 
-	size_t count;		// # bytes to read, generally length + 2
+	if (!error.exists)						// exit immediately if device does not exist
+		return ABSENT;
 
-	Wire1.beginTransmission (_base);						// base address
-	written = Wire1.write (cmd);							// PMBus command code
-	Wire1.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+
+	_wire.beginTransmission (_base);						// base address
+	ret_val = _wire.write (cmd);							// PMBus command code
+
+	if (1 != ret_val)
+		{
+		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
+		return FAIL;
+		}
+
+	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
 	Serial.printf("ascii read, cmd: 0x%X\r\n", cmd);
 
-	char char_read;
 	// now try to read the ascii data at that read command location
 
 	// 0th byte is the length of the ascii data, always >=2 and < 16 for LCM300
 	// add length byte and one more for good measure
 	count = 1;
-	if (count != Wire1.requestFrom(_base, count, I2C_STOP))
+	if (count != _wire.requestFrom(_base, count, I2C_STOP))
 		{
 		Serial.printf("ascii read of 1st byte failed\r\n");
-		data[0] = 0;	// null term
+		data[0] = '\0';	// null term
 		return FAIL;
 		}
 	else
 		{
 		// should read length of ascii data avail at this command
-		char_read = Wire1.read();
+		char_read = _wire.readByte();
 		Serial.printf("ascii length byte = %u\r\n", (uint8_t) char_read);
 		}
 
-	Wire1.beginTransmission (_base);						// base address
-	written = Wire1.write (cmd);							// PMBus command code
-	Wire1.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+	_wire.beginTransmission (_base);						// base address
+	ret_val = _wire.write (cmd);							// PMBus command code
+
+	if (1 != ret_val)
+		{
+		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
+		return FAIL;
+		}
+
+	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
 	// now read the ascii data based on length we already read, but we re-read the length byte
 	count = char_read + 1;	// length of ascii data
-	if (count != Wire1.requestFrom(_base, count, I2C_STOP))
+	if (count != _wire.requestFrom(_base, count, I2C_STOP))
 		{
 		Serial.printf("ascii data chars failed");
-		control.ret_val = Wire1.status();				// to get error value
-		tally_errors (control.ret_val);					// increment the appropriate counter
+		ret_val = _wire.status();				// to get error value
+		tally_transaction (ret_val);					// increment the appropriate counter
 		return FAIL;
 		}
 	else
@@ -363,9 +459,9 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t length, char *data)
 		}
 
 	uint8_t index=0;
-	while (Wire1.available())
+	while (_wire.available())
 		{
-		char_read = Wire1.read();
+		char_read = _wire.read();
 		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
 		if (0 == index)
 			{
@@ -378,7 +474,8 @@ uint8_t Systronix_LCM300::commandAsciiRead (int cmd, size_t length, char *data)
 		index++;
 		}
 
-	if (index > 2) data[index-1] = 0x0; 	// null term
+	if (index > 2)
+		data[index-1] = '\0'; 	// null term
 
 	Serial.println();
 	return SUCCESS;

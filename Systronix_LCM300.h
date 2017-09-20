@@ -34,6 +34,10 @@
 #define		FAIL	(~SUCCESS)
 #define		ABSENT	0xFD
 
+#define		WR_INCOMPLETE		11
+#define		SILLY_PROGRAMMER	12
+
+
 /** --------  Register Addresses --------
 
 */
@@ -105,48 +109,50 @@ class Systronix_LCM300
 {
 	protected:
 		uint8_t		_base;								// base address for this instance; four possible values
-		uint8_t		_pointer_reg;						// copy of the pointer register value so we know where it's pointing
-		void		tally_errors (uint8_t);				// maintains the i2c_t3 error counters
+		void		tally_transaction (uint8_t);		// maintains the i2c_t3 error counters
+
+		char* 		_wire_name = (char*)"empty";
+		i2c_t3		_wire = Wire;						// why is this assigned value = Wire? [bab]
 
 	public:
-		// Instance-specific properties
-		/** Data for one instance of a LCM300 supply; up to 8 could be on the same network
-		Maybe different structs for data values and control?
-		**/
 		struct
 			{
-
-			float		deg_c;        
-			float		deg_f;
-			bool		fresh;							// data is good and fresh TODO: how does one know that the data are not 'fresh'?
-			} data;
-
-		struct
-			{
-			uint8_t		ret_val;						// i2c_t3 library return value from most recent transaction
+			boolean		exists;							// set false after an unsuccessful i2c transaction
+			uint8_t		error_val;						// the most recent error value, not just SUCCESS or FAIL
 			uint32_t	incomplete_write_count;			// Wire.write failed to write all of the data to tx_buffer
 			uint32_t	data_len_error_count;			// data too long
+			uint32_t	timeout_count;					// slave response took too long
 			uint32_t	rcv_addr_nack_count;			// slave did not ack address
 			uint32_t	rcv_data_nack_count;			// slave did not ack data
-			uint32_t	other_error_count;				// arbitration lost or timeout
-			boolean		exists;							// set false after an unsuccessful i2c transaction
-			} control;
+			uint32_t	arbitration_lost_count;
+			uint32_t	buffer_overflow_count;
+			uint32_t	other_error_count;				// from endTransmission there is "other" error
+			uint32_t	unknown_error_count;
+			uint32_t	data_value_error_count;			// I2C message OK but value read was wrong; how can this be?
+			uint32_t	silly_programmer_error;			// I2C address to big or something else that "should never happen"
+			uint64_t	total_error_count;				// quick check to see if any have happened
+			uint64_t	successful_count;				// successful access cycle
+			} error;
 
-		uint8_t BaseAddr;
-														// i2c_t3 error counters
+		char*		wire_name;							// name of Wire, Wire1, etc in use
 
-		void		setup (uint8_t base);				// constructor
-		void		begin (void);
-		uint8_t		init (uint16_t);					// device present and communicating detector
+		uint8_t		setup (uint8_t base, i2c_t3 wire, char* name);				// constructor
 
-		uint8_t 	commandRawRead (int cmd, size_t count, char *data);
-		uint8_t 	commandAsciiRead (int cmd, size_t length, char *data);
+		void		begin (i2c_pins pins);
+		void		begin (void)						// default begin() (Wire0)
+						{begin (I2C_PINS_18_19);}
 
-		uint8_t		get_temperature_data (void);
+		uint8_t		init (void);						// device present and communicating detector
 
-		uint8_t		writePointer (uint8_t pointer);		// i2c bus dependent functions
-		uint8_t		writeRegister (uint8_t pointer, uint16_t data);
-		uint8_t		readRegister (uint16_t *data);
+		void		reset_bus (void);
+		uint32_t	reset_bus_count_read (void);
+
+		uint8_t		base_get (void);
+		uint8_t 	command_raw_read (int cmd, size_t count, char *data);
+		uint8_t 	command_ascii_read (int cmd, size_t length, char *data);
+
+		uint8_t		register_write (uint8_t pointer, uint16_t data);
+		uint8_t		register_read (uint16_t *data);
 
 	private:
 

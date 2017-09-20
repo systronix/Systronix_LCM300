@@ -75,12 +75,13 @@ void setup(void)
   while((!Serial) && (millis()<10000));    // wait until serial monitor is open or timeout, which seems to fall through
 
   // start LCM300 library
-  lcm300_58.setup(LCM300_BASE_MIN);
+  lcm300_58.setup (LCM300_BASE_MIN, Wire1, (char*)"Wire1");
 
-  Serial.print("LCM300Q Library Test Code at 0x");
-  Serial.println(lcm300_58.BaseAddr, HEX);
+	Serial.printf ("LCM300Q Library Test Code at 0x%.2X", lcm300_58.base_get());
+//  Serial.println(lcm300_58.BaseAddr, HEX);
 
-  lcm300_58.begin();
+  lcm300_58.begin(I2C_PINS_29_30);
+  lcm300_58.init();
 
   Serial.printf("Build %s - %s\r\n%s\r\n", __DATE__, __TIME__, __FILE__);
 
@@ -133,24 +134,24 @@ void loop(void)
   
 
 
-  result = lcm300_58.commandAsciiRead(MFR_ID_CMD, 7, ascii);
+  result = lcm300_58.command_ascii_read(MFR_ID_CMD, 7, ascii);
   Serial.printf("mfr ID: %s\r\n\n", ascii);
 
 
   read_cnt = 16;
-  result = lcm300_58.commandAsciiRead (MFR_MODEL_CMD, read_cnt, ascii);
+  result = lcm300_58.command_ascii_read (MFR_MODEL_CMD, read_cnt, ascii);
   Serial.printf("model: %s\r\n\n", ascii);
 
   read_cnt = 16;
-  result = lcm300_58.commandAsciiRead (MFR_REVISION_CMD, read_cnt, ascii);
+  result = lcm300_58.command_ascii_read (MFR_REVISION_CMD, read_cnt, ascii);
   Serial.printf("revision: %s\r\n\n", ascii);
  
   read_cnt = 16;
-  result = lcm300_58.commandAsciiRead (MFR_LOCATION_CMD, read_cnt, ascii);
+  result = lcm300_58.command_ascii_read (MFR_LOCATION_CMD, read_cnt, ascii);
   Serial.printf("location: %s\r\n\n", ascii); 
 
   read_cnt = 8;
-  result = lcm300_58.commandAsciiRead (MFR_SERIAL_CMD, read_cnt, ascii);
+  result = lcm300_58.command_ascii_read (MFR_SERIAL_CMD, read_cnt, ascii);
   Serial.printf("Mfg Date: %s\r\n\n", ascii); 
 
 
