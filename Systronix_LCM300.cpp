@@ -137,7 +137,7 @@ uint8_t Systronix_LCM300::init (void)
 	{
 	_wire.beginTransmission (_base);					// base address
 
-	if (_wire.endTransmission())
+	if (_wire.endTransmission())						// returns 0 if got an ACK from LCM300
 		{
 		error.exists = false;							// unsuccessful i2c transaction
 		return FAIL;
