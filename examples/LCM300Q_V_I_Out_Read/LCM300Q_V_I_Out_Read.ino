@@ -122,6 +122,11 @@ void loop(void)
   delay(50);
   
   read_cnt = 4;
+  result = lcm300_58.command_raw_read (VOUT_COMMAND_CMD, read_cnt, ascii);
+  Serial.printf("Vout Set Command: %s\r\n\n", ascii);  
+  delay(50);
+  
+  read_cnt = 4;
   result = lcm300_58.command_raw_read (READ_VOUT_CMD, read_cnt, ascii);
   Serial.printf("Read Vout: %s\r\n\n", ascii);  
   delay(50);
