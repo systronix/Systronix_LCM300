@@ -1,0 +1,576 @@
+
+/tmp/arduino_build_82070/LCM300Q_CmdRawRead.ino.elf:     file format elf32-littlearm
+
+SYMBOL TABLE:
+00000000 l    d  .text	00000000 .text
+00009268 l    d  .fini	00000000 .fini
+0000926c l    d  .ARM.exidx	00000000 .ARM.exidx
+1fff8000 l    d  .usbdescriptortable	00000000 .usbdescriptortable
+1fff8200 l    d  .dmabuffers	00000000 .dmabuffers
+1fff83bc l    d  .usbbuffers	00000000 .usbbuffers
+1fff8720 l    d  .data	00000000 .data
+1fff9828 l    d  .bss	00000000 .bss
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_loc	00000000 .debug_loc
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_ranges	00000000 .debug_ranges
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    df *ABS*	00000000 mk20dx128.c
+00002278 l     F .text	0000000c startup_default_early_hook
+00002284 l     F .text	00000002 startup_default_late_hook
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000410 l     F .text	00000000 __do_global_dtors_aux
+1fff9828 l       .bss	00000000 completed.8603
+00000434 l     F .text	00000000 frame_dummy
+1fff982c l       .bss	00000000 object.8608
+0000925c l     O .text	00000000 __frame_dummy_init_array_entry
+00000000 l    df *ABS*	00000000 LCM300Q_CmdRawRead.ino.cpp
+000008cc l     F .text	00000044 _GLOBAL__sub_I_DEBUG
+00000000 l    df *ABS*	00000000 Systronix_LCM300.cpp
+00000000 l    df *ABS*	00000000 i2c_t3.cpp
+000012e0 l       .text	00000000 L_1414_delayMicroseconds
+000012ee l       .text	00000000 L_1428_delayMicroseconds
+0000131c l       .text	00000000 L_1465_delayMicroseconds
+00001326 l       .text	00000000 L_1477_delayMicroseconds
+000017ba l       .text	00000000 L_2565_delayMicroseconds
+00001a4e l       .text	00000000 L_3131_delayMicroseconds
+00001de8 l       .text	00000000 L_3900_delayMicroseconds
+00001eb2 l       .text	00000000 L_4039_delayMicroseconds
+000021f4 l     F .text	00000040 _GLOBAL__sub_I__ZN6i2c_t37i2cDataE
+00008d18 l     O .text	000000dc i2c_div_num
+00008df4 l     O .text	00000037 i2c_div_ratio
+00000000 l    df *ABS*	00000000 pins_teensy.c
+000022fc l     F .text	00000002 dummy_isr
+1fff8720 l     F .data	0000002c port_E_isr
+1fff874c l     F .data	0000002c port_D_isr
+1fff8778 l     F .data	0000002c port_C_isr
+1fff87a4 l     F .data	0000002c port_B_isr
+1fff87d0 l     F .data	0000002c port_A_isr
+00000000 l    df *ABS*	00000000 usb_dev.c
+000026c8 l     F .text	00000048 endpoint0_transmit
+1fff9914 l     O .bss	00000004 ep0_tx_ptr
+1fff9918 l     O .bss	00000010 rx_last
+1fff9928 l     O .bss	00000004 tx_state
+1fff992c l     O .bss	00000040 ep0_rx0_buf
+1fff996c l     O .bss	00000010 rx_first
+1fff997c l     O .bss	00000001 ep0_tx_bdt_bank
+1fff9980 l     O .bss	00000040 ep0_rx1_buf
+1fff99c0 l     O .bss	00000010 tx_first
+1fff8000 l     O .usbdescriptortable	000000a0 table
+1fff99d0 l     O .bss	00000010 tx_last
+1fff99e0 l     O .bss	00000008 setup
+1fff99e8 l     O .bss	00000002 ep0_tx_len
+1fff99ec l     O .bss	00000008 reply_buffer
+1fff99f5 l     O .bss	00000001 ep0_tx_data_toggle
+00000000 l    df *ABS*	00000000 usb_mem.c
+1fff8dc4 l     O .data	00000004 usb_buffer_available
+00000000 l    df *ABS*	00000000 usb_serial.c
+1fff99f7 l     O .bss	00000001 tx_noautoflush
+1fff99f8 l     O .bss	00000004 tx_packet
+1fff99fc l     O .bss	00000001 transmit_previous_timeout
+1fff9a00 l     O .bss	00000004 rx_packet
+00000000 l    df *ABS*	00000000 DMAChannel.cpp
+00000000 l    df *ABS*	00000000 Print.cpp
+00000000 l    df *ABS*	00000000 main.cpp
+00000000 l    df *ABS*	00000000 new.cpp
+00000000 l    df *ABS*	00000000 usb_inst.cpp
+00000000 l    df *ABS*	00000000 yield.cpp
+1fff9a08 l     O .bss	00000001 yield::running
+00000000 l    df *ABS*	00000000 memcpy-armv7m.S.o
+00000000 l    df *ABS*	00000000 analog.c
+1fff9a09 l     O .bss	00000001 calibrating
+1fff8dd8 l     O .data	00000001 analog_config_bits
+1fff9a0a l     O .bss	00000001 analog_reference_internal
+1fff8dd9 l     O .data	00000001 analog_num_average
+00000000 l    df *ABS*	00000000 nonstd.c
+00000000 l    df *ABS*	00000000 serial1.c
+1fff9a0c l     O .bss	00000004 rts_pin
+1fff9a10 l     O .bss	00000001 transmitting
+1fff9a11 l     O .bss	00000001 rx_buffer_tail
+1fff9a14 l     O .bss	00000040 tx_buffer
+1fff9a54 l     O .bss	00000040 rx_buffer
+1fff9a94 l     O .bss	00000001 rx_buffer_head
+1fff9a95 l     O .bss	00000001 tx_buffer_tail
+1fff9a98 l     O .bss	00000004 transmit_pin
+1fff9a9c l     O .bss	00000001 tx_buffer_head
+00000000 l    df *ABS*	00000000 serial2.c
+1fff9aa0 l     O .bss	00000004 rts_pin
+1fff9aa4 l     O .bss	00000001 transmitting
+1fff9aa5 l     O .bss	00000001 rx_buffer_tail
+1fff9aa8 l     O .bss	00000028 tx_buffer
+1fff9ad0 l     O .bss	00000040 rx_buffer
+1fff9b10 l     O .bss	00000001 rx_buffer_head
+1fff9b11 l     O .bss	00000001 tx_buffer_tail
+1fff9b14 l     O .bss	00000004 transmit_pin
+1fff9b18 l     O .bss	00000001 tx_buffer_head
+00000000 l    df *ABS*	00000000 serial3.c
+1fff9b1c l     O .bss	00000004 rts_pin
+1fff9b20 l     O .bss	00000001 transmitting
+1fff9b21 l     O .bss	00000001 rx_buffer_tail
+1fff9b24 l     O .bss	00000028 tx_buffer
+1fff9b4c l     O .bss	00000040 rx_buffer
+1fff9b8c l     O .bss	00000001 rx_buffer_head
+1fff9b8d l     O .bss	00000001 tx_buffer_tail
+1fff9b90 l     O .bss	00000004 transmit_pin
+1fff9b94 l     O .bss	00000001 tx_buffer_head
+00000000 l    df *ABS*	00000000 usb_desc.c
+1fff8ddc l     O .data	00000012 device_descriptor
+1fff8e08 l     O .data	00000043 config_descriptor
+00000000 l    df *ABS*	00000000 EventResponder.cpp
+00000000 l    df *ABS*	00000000 HardwareSerial1.cpp
+00000000 l    df *ABS*	00000000 HardwareSerial2.cpp
+00000000 l    df *ABS*	00000000 HardwareSerial3.cpp
+00000000 l    df *ABS*	00000000 _arm_addsubdf3.o
+00000000 l    df *ABS*	00000000 _arm_muldivdf3.o
+00000000 l    df *ABS*	00000000 _arm_cmpdf2.o
+00000000 l    df *ABS*	00000000 _arm_unorddf2.o
+00000000 l    df *ABS*	00000000 aeabi_atexit.c
+00000000 l    df *ABS*	00000000 cxa_atexit.c
+00000000 l    df *ABS*	00000000 errno.c
+00000000 l    df *ABS*	00000000 init.c
+00000000 l    df *ABS*	00000000 malloc.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 mbtowc_r.c
+00000000 l    df *ABS*	00000000 memmove.c
+00000000 l    df *ABS*	00000000 memset.c
+00000000 l    df *ABS*	00000000 mlock.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 sbrkr.c
+00000000 l    df *ABS*	00000000 lib_a-strlen.o
+00000000 l    df *ABS*	00000000 vdprintf.c
+00000000 l    df *ABS*	00000000 wctomb_r.c
+00000000 l    df *ABS*	00000000 writer.c
+00000000 l    df *ABS*	00000000 __atexit.c
+00000000 l    df *ABS*	00000000 __call_atexit.c
+0000556c l     F .text	00000014 register_fini
+00000000 l    df *ABS*	00000000 atexit.c
+00000000 l    df *ABS*	00000000 fini.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 localeconv.c
+00000000 l    df *ABS*	00000000 lib_a-memchr.o
+00000000 l    df *ABS*	00000000 mprec.c
+000091a0 l     O .text	0000000c p05.6085
+00000000 l    df *ABS*	00000000 vasnprintf.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 dtoa.c
+00005fbc l     F .text	00000128 quorem
+00000000 l    df *ABS*	00000000 vfprintf.c
+000091ec l     O .text	00000010 zeroes.7256
+0000923c l     O .text	00000010 blanks.7255
+00000000 l    df *ABS*	00000000 vfprintf.c
+00000000 l    df *ABS*	00000000 _arm_fixdfsi.o
+00000000 l    df *ABS*	00000000 _aeabi_uldivmod.o
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 _dvmd_tls.o
+00000000 l    df *ABS*	00000000 impure.c
+1fff8e80 l     O .data	00000428 impure_data
+00000000 l    df *ABS*	00000000 locale.c
+00000000 l    df *ABS*	00000000 ctype_.c
+00000000 l    df *ABS*	00000000 /home/bruce/Documents/arduino-1.8.4/hardware/tools/arm/bin/../lib/gcc/arm-none-eabi/5.4.1/armv7e-m/crti.o
+00000000 l    df *ABS*	00000000 /home/bruce/Documents/arduino-1.8.4/hardware/tools/arm/bin/../lib/gcc/arm-none-eabi/5.4.1/armv7e-m/crtn.o
+00000000 l    df *ABS*	00000000 reent.c
+00000000 l    df *ABS*	00000000 
+1fff9828 l       .bss	00000000 __bss_start__
+1fff9c00 l       .bss	00000000 __bss_end__
+00000000 l       *UND*	00000000 software_init_hook
+00000000 l       *UND*	00000000 hardware_init_hook
+00000000 l       *UND*	00000000 __stack
+00002270  w    F .text	00000006 adc0_isr
+0000473c g     F .text	0000002c .hidden __aeabi_dcmpun
+00003158 g     F .text	0000001c usb_serial_available
+00004700 g     F .text	00000012 .hidden __aeabi_dcmple
+0000463c g     F .text	0000007a .hidden __cmpdf2
+000035f0  w    F .text	000000a0 yield
+00000470  w    F .text	0000000e Systronix_LCM300::~Systronix_LCM300()
+0000463c g     F .text	0000007a .hidden __eqdf2
+000021e4 g     F .text	00000010 i2c_t3::sda1_rising_isr()
+1fff8df0 g     O .data	00000018 usb_string_manufacturer_name_default
+0000392c g     F .text	00000020 serial_available
+1fff98e8 g     O .bss	00000014 Wire1
+00002130 g     F .text	000000a2 i2c_t3::sda_rising_isr_handler(i2cStruct*, unsigned char)
+000041ac g     F .text	0000005a .hidden __floatdidf
+00002234  w    F .text	0000003c hard_fault_isr
+00002270  w    F .text	00000006 dma_ch6_isr
+000034ac g     F .text	00000020 Print::println()
+00003a70 g     F .text	00000020 serial2_available
+00002270  w    F .text	00000006 uart0_lon_isr
+0000277c g     F .text	00000088 usb_rx_memory
+00002270  w    F .text	00000006 dma_ch8_isr
+00004f00 g     F .text	00000002 __malloc_unlock
+1fff8ce4 g     O .data	00000038 isr_table_portA
+000037c4 g     F .text	00000114 analog_init
+00002804 g     F .text	0000008c usb_tx
+00002270  w    F .text	00000006 portcd_isr
+0000541c g     F .text	0000004a _vdprintf_r
+00004d98 g     F .text	000000c6 memmove
+00003e08 g     F .text	00000070 MillisTimer::runFromTimer()
+000058e0 g     F .text	0000004c _Balloc
+00002270  w    F .text	00000006 can1_rx_warn_isr
+00009274 g       .ARM.exidx	00000000 __exidx_end
+00002270  w    F .text	00000006 dma_error_isr
+00000948 g     F .text	00000004 Systronix_LCM300::base_get()
+1fff9bac g     O .bss	00000001 EventResponder::runningFromYield
+00002110 g     F .text	00000010 i2c0_isr
+0000462c g     F .text	0000008a .hidden __gtdf2
+00004780 g     F .text	0000000c __errno
+00002270  w    F .text	00000006 portd_isr
+00002270  w    F .text	00000006 enet_error_isr
+1fff9b98 g     O .bss	00000004 EventResponder::firstInterrupt
+00002270  w    F .text	00000006 tpm1_isr
+000035d4  w    F .text	0000000c usb_serial_class::write(unsigned char const*, unsigned int)
+00008e2c g     O .text	00000110 digital_pin_to_info_PGM
+00000b84 g     F .text	000001e4 Systronix_LCM300::command_ascii_read(int, unsigned int, char*, bool)
+1fff9bfc g     O .bss	00000004 errno
+00009274 g       .ARM.exidx	00000000 _etext
+1fff9828 g       .bss	00000000 _sbss
+000046c8 g     F .text	00000010 .hidden __aeabi_cdcmple
+000023fc g     F .text	0000001c digitalRead
+00002270  w    F .text	00000006 porte_isr
+000005a4 g     F .text	00000328 loop
+00002270  w    F .text	00000006 portb_isr
+000011c8 g     F .text	000000d8 i2c_t3::begin_(i2cStruct*, unsigned char, i2c_mode, unsigned char, unsigned char, i2c_pins, i2c_pullup, unsigned long, i2c_op_mode)
+00002270  w    F .text	00000006 spi1_isr
+00002270  w    F .text	00000006 uart3_status_isr
+00003e8c  w    F .text	00000002 serialEvent1()
+00002270  w    F .text	00000006 mcm_isr
+00003d90 g     F .text	00000078 MillisTimer::addToActiveList()
+1fff8800 g     O .data	000004e0 i2c_t3::i2cData
+1fff9b9c g     O .bss	00000004 EventResponder::lastInterrupt
+00003a90 g     F .text	00000124 uart1_status_isr
+00003690 g     F .text	00000134 memcpy
+00002270  w    F .text	00000006 randnum_isr
+000046b8 g     F .text	00000020 .hidden __aeabi_cdrcmple
+1fff98e4 g     O .bss	00000001 verbose
+000012a0 g     F .text	000000da i2c_t3::resetBus_(i2cStruct*, unsigned char)
+00006f40 g     F .text	000016b0 _svfprintf_r
+0000413c g     F .text	00000022 .hidden __floatsidf
+1fff8d6c g     O .data	00000030 isr_table_portC
+1fff9910 g     O .bss	00000004 systick_millis_count
+00004634 g     F .text	00000082 .hidden __ltdf2
+00002234  w    F .text	0000003c bus_fault_isr
+00002270  w    F .text	00000006 watchdog_isr
+00008740 g     F .text	00000000 .hidden __aeabi_uldivmod
+000022bc g     F .text	00000040 nvic_execution_priority
+00002120 g     F .text	00000010 i2c1_isr
+1fff99f4 g     O .bss	00000001 usb_configuration
+00002270  w    F .text	00000006 dma_ch11_isr
+00000000  w      *UND*	00000000 __fini_array_end
+00003e90  w    F .text	00000002 serialEvent2()
+00002270  w    F .text	00000006 i2c2_isr
+00001ae8  w    F .text	0000000a i2c_t3::read()
+1fff8df0  w    O .data	00000018 usb_string_manufacturer_name
+1fff9be8 g     O .bss	00000008 usb_rx_byte_count_data
+00002270  w    F .text	00000006 pit1_isr
+000047dc g     F .text	00000010 malloc
+1fff9844 g     O .bss	00000010 raw_chars
+00002270  w    F .text	00000006 dma_ch4_isr
+00002270  w    F .text	00000006 software_isr
+000014bc g     F .text	0000018e i2c_t3::sendTransmission_(i2cStruct*, unsigned char, i2c_stop, unsigned long)
+00002270  w    F .text	00000006 dma_ch7_isr
+000090d8 g     O .text	000000c8 __mprec_tens
+00002fa0 g     F .text	0000008c usb_init
+00000910 g     F .text	00000038 Systronix_LCM300::begin(i2c_pins)
+00001a64 g     F .text	00000026 i2c_t3::endTransmission(i2cStruct*, unsigned char, i2c_stop, unsigned long)
+00001940 g     F .text	00000034 i2c_t3::getError()
+00002270  w    F .text	00000006 lptmr_isr
+0000137c g     F .text	00000124 i2c_t3::acquireBus_(i2cStruct*, unsigned char, unsigned long, unsigned char&)
+1fff9bbc g     O .bss	00000004 __malloc_top_pad
+00002394 g     F .text	00000020 rtc_set
+00000d78  w    F .text	00000002 i2c_t3::flush()
+1fff87fc g     O .data	00000000 .hidden __dso_handle
+0000411c g     F .text	0000001e .hidden __aeabi_ui2d
+00005820 g     F .text	0000001c _localeconv_r
+00008cf4 g     O .text	00000024 vtable for i2c_t3
+00005a5c g     F .text	00000012 __i2b
+1fff8720 g       .data	00000000 _sdata
+00008770 g     F .text	000002e2 .hidden __udivmoddi4
+00003e98 g     F .text	00000000 .hidden __aeabi_drsub
+000052e4 g     F .text	00000024 _sbrk_r
+000001bc g     F .text	000001d4 ResetHandler
+000030c0 g     F .text	00000058 usb_serial_getchar
+00002270  w    F .text	00000006 can1_bus_off_isr
+00002270  w    F .text	00000006 ftm2_isr
+1fff9bf0 g     O .bss	00000008 usb_cdc_line_coding
+000023b4 g     F .text	00000048 digitalWrite
+1fff9ba4 g     O .bss	00000004 EventResponder::lastYield
+00002270  w    F .text	00000006 uart5_status_isr
+00002270  w    F .text	00000006 lpuart0_status_isr
+00008f68 g     O .text	00000004 usb_endpoint_config_table
+00002270  w    F .text	00000006 dma_ch9_isr
+00002270  w    F .text	00000006 pit2_isr
+000046ec g     F .text	00000012 .hidden __aeabi_dcmplt
+00003bb4 g     F .text	00000020 serial3_available
+00000a70 g     F .text	00000114 Systronix_LCM300::command_raw_read(int, unsigned int, char*)
+1fff9bb8 g     O .bss	00000004 __malloc_max_sbrked_mem
+000019cc g     F .text	00000096 i2c_t3::finish_(i2cStruct*, unsigned char, unsigned long)
+00002418 g     F .text	00000080 pinMode
+0000306c g     F .text	00000054 usb_free
+00002270  w    F .text	00000006 i2c3_isr
+00004160 g     F .text	0000003a .hidden __extendsfdf2
+0000445c g     F .text	000001d0 .hidden __aeabi_ddiv
+00003ea4 g     F .text	00000276 .hidden __adddf3
+0000926c g       .ARM.exidx	00000000 __exidx_start
+00004208 g     F .text	00000254 .hidden __aeabi_dmul
+00002270  w    F .text	00000006 pit0_isr
+1fff9ba8 g     O .bss	00000004 EventResponder::firstYield
+00008fc0 g     O .text	00000004 _global_impure_ptr
+00002270  w    F .text	00000006 can1_error_isr
+00004f04 g     F .text	000003de _realloc_r
+0000478c g     F .text	00000050 __libc_init_array
+1fff9c00 g       .bss	00000000 __bss_end
+00002270  w    F .text	00000006 can0_wakeup_isr
+00002270  w    F .text	00000006 flash_cmd_isr
+000091b0 g     O .text	00000028 __mprec_bigtens
+000035a4  w    F .text	00000008 usb_serial_class::clear()
+0000411c g     F .text	0000001e .hidden __floatunsidf
+00003bd4 g     F .text	000000e4 uart2_status_isr
+00002288 g     F .text	00000034 _sbrk
+00005cf0 g     F .text	0000003e __mcmp
+1fff9bb0 g     O .bss	00000004 MillisTimer::listWaiting
+00000e2c g     F .text	0000002c i2c_t3::i2c_t3(unsigned char)
+00002498 g     F .text	00000100 attachInterrupt
+1fff8ce0 g     O .data	00000004 __brkval
+1fff9a04 g     O .bss	00000001 usb_cdc_line_rtsdtr
+00003374 g     F .text	00000048 usb_serial_flush_callback
+0000924c g     F .text	00000000 _init
+00000470  w    F .text	0000000e Systronix_LCM300::~Systronix_LCM300()
+00002270  w    F .text	00000006 svcall_isr
+00002270  w    F .text	00000006 dma_ch15_isr
+0000094c g     F .text	0000003c Systronix_LCM300::init()
+00002270  w    F .text	00000006 uart1_error_isr
+0000558c g     F .text	00000028 __libc_fini_array
+00002270  w    F .text	00000006 usbhs_phy_isr
+1fff9c00 g       .bss	00000000 _ebss
+00000d7c g     F .text	00000028 i2c_t3::write(unsigned char)
+000059c0 g     F .text	00000040 __hi0bits
+000086f0 g     F .text	0000004e .hidden __fixdfsi
+00002270 g     F .text	00000006 unused_isr
+00000dfc g     F .text	00000030 i2c_t3::~i2c_t3()
+00002270  w    F .text	00000006 spi0_isr
+00000988 g     F .text	000000b4 Systronix_LCM300::tally_transaction(unsigned char)
+00002270  w    F .text	00000006 dma_ch3_isr
+00000e58 g     F .text	00000190 i2c_t3::setOpMode_(i2cStruct*, unsigned char, i2c_op_mode)
+0000359c g     F .text	00000008 operator delete(void*, unsigned int)
+00002270  w    F .text	00000006 flash_error_isr
+00003ea4 g     F .text	00000276 .hidden __aeabi_dadd
+00004634 g     F .text	00000082 .hidden __ledf2
+00002270  w    F .text	00000006 uart5_error_isr
+00002270  w    F .text	00000006 rtc_seconds_isr
+00002270  w    F .text	00000006 pdb_isr
+00005ba0 g     F .text	000000a0 __pow5mult
+0000419c g     F .text	0000006a .hidden __aeabi_ul2d
+00002234  w    F .text	0000003c usage_fault_isr
+00002270  w    F .text	00000006 dac1_isr
+00000000 g     O .text	000001bc _VectorsFlash
+00002270  w    F .text	00000006 dma_ch14_isr
+00002300 g     F .text	00000094 detachInterrupt
+00000000  w      *UND*	00000000 __deregister_frame_info
+1fff9bf8 g     O .bss	00000004 usb_cdc_line_rtsdtr_millis
+00000da4 g     F .text	00000058 i2c_t3::write(unsigned char const*, unsigned int)
+00003e78 g     F .text	00000014 systick_isr
+00002270  w    F .text	00000006 rtc_alarm_isr
+00002270  w    F .text	00000006 dma_ch2_isr
+1fff8dc8 g     O .data	00000010 Serial
+00002270  w    F .text	00000006 ftm1_isr
+000035e0  w    F .text	0000000a usb_serial_class::write(unsigned char)
+00002278  w    F .text	0000000c startup_early_hook
+00002270  w    F .text	00000006 dma_ch13_isr
+00002270  w    F .text	00000006 uart2_error_isr
+00004728 g     F .text	00000012 .hidden __aeabi_dcmpgt
+00003118 g     F .text	00000040 usb_serial_peekchar
+00001af4 g     F .text	0000001c i2c_t3::peek_(i2cStruct*)
+00005840 g     F .text	00000000 memchr
+1fff8e68 g     O .data	00000016 usb_string_serial_number_default
+00002234 g     F .text	0000003c fault_isr
+00005650 g     F .text	000001d0 _free_r
+00000a3c g     F .text	00000034 Systronix_LCM300::setup(unsigned char, i2c_t3, char*)
+00004714 g     F .text	00000012 .hidden __aeabi_dcmpge
+00002270  w    F .text	00000006 usb_charge_isr
+000035c4  w    F .text	00000008 usb_serial_class::flush()
+00001974 g     F .text	00000056 i2c_t3::done_(i2cStruct*)
+00002270  w    F .text	00000006 cmt_isr
+00003ea0 g     F .text	0000027a .hidden __aeabi_dsub
+00002270  w    F .text	00000006 usbhs_isr
+1fff9824 g     O .data	00000004 __malloc_sbrk_base
+000035b4  w    F .text	00000008 usb_serial_class::read()
+00002270  w    F .text	00000006 ftm3_isr
+00002270  w    F .text	00000006 tsi0_isr
+0000419c g     F .text	0000006a .hidden __floatundidf
+00005c40 g     F .text	000000ae __lshift
+00002270  w    F .text	00000006 spi2_isr
+000085f0 g     F .text	00000100 __ssprint_r
+00005efc g     F .text	0000005e _vasnprintf_r
+000035ec  w    F .text	00000002 serialEvent()
+1fff997d g     O .bss	00000001 usb_reboot_timer
+000054c8 g     F .text	000000a4 __register_exitproc
+00000d68  w    F .text	0000000e i2c_t3::available()
+00003174 g     F .text	00000038 usb_serial_flush_input
+1fff98c0 g     O .bss	00000002 dtime
+00005a70 g     F .text	00000130 __multiply
+1fff8dbc g     O .data	00000008 isr_table_portE
+000032a4 g     F .text	00000018 usb_serial_putchar
+1fff9bc0 g     O .bss	00000028 __malloc_current_mallinfo
+00005e44 g     F .text	000000b6 __d2b
+00002270  w    F .text	00000006 can0_bus_off_isr
+1fff99ea g     O .bss	00000001 usb_rx_memory_needed
+00002890 g     F .text	00000710 usb_isr
+00004774 g     F .text	0000000c __cxa_atexit
+0000413c g     F .text	00000022 .hidden __aeabi_i2d
+00008f40  w    O .text	00000028 vtable for usb_serial_class
+00002270  w    F .text	00000006 uart3_error_isr
+1fff9ba0 g     O .bss	00000004 MillisTimer::listActive
+00008a54  w    F .text	00000002 .hidden __aeabi_ldiv0
+00002270  w    F .text	00000006 porta_isr
+0000445c g     F .text	000001d0 .hidden __divdf3
+1fff83bc g     O .usbbuffers	00000360 usb_buffer_memory
+00002270  w    F .text	00000006 low_voltage_isr
+1fff9418 g     O .data	00000408 __malloc_av_
+00002270  w    F .text	00000006 can0_error_isr
+0000260c g     F .text	000000bc _init_Teensyduino_internal_
+00004208 g     F .text	00000254 .hidden __muldf3
+00003310 g     F .text	00000064 usb_serial_flush_output
+00002270  w    F .text	00000006 dma_ch12_isr
+00004efc g     F .text	00000002 __malloc_lock
+00000000  w      *UND*	00000000 __fini_array_start
+00002270  w    F .text	00000006 can1_wakeup_isr
+1fff8200 g     O .dmabuffers	000001bc _VectorsRam
+00005f5c g     F .text	0000005e _calloc_r
+00002270  w    F .text	00000006 pit3_isr
+00002270  w    F .text	00000006 enet_rx_isr
+00002270  w    F .text	00000006 portc_isr
+00004e60 g     F .text	0000009a memset
+00003584 g     F .text	00000010 main
+1fff9bb4 g     O .bss	00000004 __malloc_max_total_mem
+00002234  w    F .text	0000003c memmanage_fault_isr
+000014a0 g     F .text	0000001c i2c_t3::beginTransmission(unsigned char)
+00003cb8 g     F .text	0000008c usb_init_serialnumber
+00009268 g       .text	00000000 __init_array_end
+000060e8 g     F .text	00000e56 _dtoa_r
+000047fc g     F .text	00000570 _malloc_r
+00002270  w    F .text	00000006 debugmonitor_isr
+00005480 g     F .text	0000001a __ascii_wctomb
+000041ac g     F .text	0000005a .hidden __aeabi_l2d
+1fff8d9c g     O .data	00000020 isr_table_portD
+5ab53c44 g       *ABS*	00000000 __rtc_localtime
+00002598 g     F .text	00000048 micros
+00000000  w      *UND*	00000000 __libc_fini
+00002270  w    F .text	00000006 cmp1_isr
+00002270  w    F .text	00000006 ftm0_isr
+000055b4 g     F .text	0000009c _malloc_trim_r
+1fff8e64 g     O .data	00000004 string0
+000031ac g     F .text	000000f8 usb_serial_write
+00000fe8 g     F .text	000000a8 i2c_t3::setRate_(i2cStruct*, unsigned long, unsigned long)
+00002284  w    F .text	00000002 startup_late_hook
+000035bc  w    F .text	00000008 usb_serial_class::available()
+00001a8c g     F .text	00000036 i2c_t3::requestFrom_(i2cStruct*, unsigned char, unsigned char, unsigned int, i2c_stop, unsigned long)
+00001b40 g     F .text	000005d0 i2c_isr_handler
+1fff8e4c  w    O .data	00000016 usb_string_product_name
+000025e0 g     F .text	0000002a delay
+0000463c g     F .text	0000007a .hidden __nedf2
+00002270  w    F .text	00000006 tpm0_isr
+1fff9a06 g     O .bss	00000002 dma_channel_allocated_mask
+00009268 g     F .fini	00000000 _fini
+000034dc g     F .text	0000001c Print::printf(char const*, ...)
+00002270  w    F .text	00000006 i2s0_rx_isr
+00002270  w    F .text	00000006 uart4_error_isr
+00003570 g     F .text	00000014 Print::print(long)
+00005580 g     F .text	0000000c atexit
+1fff98e5 g     O .bss	00000001 result
+0000549c g     F .text	0000002c _write_r
+00001b10  w    F .text	0000000a i2c_t3::peek()
+00002270  w    F .text	00000006 can0_message_isr
+1fff92a8 g     O .data	00000004 _impure_ptr
+00002270  w    F .text	00000006 can1_message_isr
+00002270  w    F .text	00000006 nmi_isr
+1fff98fc g     O .bss	00000014 Wire
+00009258 g       .text	00000000 __preinit_array_end
+1fff9858 g     O .bss	00000068 lcm300_58
+1fff98c4 g     O .bss	00000020 ascii
+00002270  w    F .text	00000006 sdhc_isr
+00004d6c g     F .text	0000002a __ascii_mbtowc
+1fff9854 g     O .bss	00000004 read_cnt
+00000480 g     F .text	00000124 setup
+00008f6c g     O .text	00000054 usb_descriptor_list
+00002710 g     F .text	00000040 usb_rx
+00002270  w    F .text	00000006 dma_ch10_isr
+00002270  w    F .text	00000006 uart0_error_isr
+0000302c g     F .text	00000040 usb_malloc
+00002270  w    F .text	00000006 i2s0_isr
+00000dfc g     F .text	00000030 i2c_t3::~i2c_t3()
+20008000 g       .bss	00000000 _estack
+00003478 g     F .text	00000034 DMAChannel::release()
+000032bc g     F .text	00000054 usb_serial_write_buffer_free
+00002270  w    F .text	00000006 enet_timer_isr
+000046d8 g     F .text	00000012 .hidden __aeabi_dcmpeq
+000034cc  w    F .text	0000000e _write
+1fff9828 g       .data	00000000 _edata
+00002270  w    F .text	00000006 i2s0_tx_isr
+00002270  w    F .text	00000006 adc1_isr
+000035cc  w    F .text	00000008 usb_serial_class::availableForWrite()
+00002270  w    F .text	00000006 cmp0_isr
+00000e2c g     F .text	0000002c i2c_t3::i2c_t3(unsigned char)
+0000164c g     F .text	000002f2 i2c_t3::sendRequest_(i2cStruct*, unsigned char, unsigned char, unsigned int, i2c_stop, unsigned long)
+000038d8 g     F .text	00000052 ultoa
+00003594 g     F .text	00000008 operator new(unsigned int)
+00003d44 g     F .text	00000044 EventResponder::runFromInterrupt()
+1fff9820 g     O .data	00000004 __malloc_trim_threshold
+000035ac  w    F .text	00000008 usb_serial_class::peek()
+00005d30 g     F .text	00000114 __mdiff
+000086f0 g     F .text	0000004e .hidden __aeabi_d2iz
+1fff99f6 g     O .bss	00000001 usb_cdc_transmit_flush_timer
+00002270  w    F .text	00000006 pit_isr
+00001090 g     F .text	00000138 i2c_t3::pinConfigure_(i2cStruct*, unsigned char, i2c_pins, i2c_pullup, unsigned char)
+00008fd4 g     O .text	00000101 _ctype_
+00002270  w    F .text	00000006 dac0_isr
+00008a54  w    F .text	00000002 .hidden __aeabi_idiv0
+00009258 g       .text	00000000 __init_array_start
+00002270  w    F .text	00000006 can1_tx_warn_isr
+0000473c g     F .text	0000002c .hidden __unorddf2
+0000394c g     F .text	00000124 uart0_status_isr
+00002270  w    F .text	00000006 mcg_isr
+00000400 g     O .text	00000010 flashconfigbytes
+000033bc g     F .text	000000bc DMAChannel::begin(bool)
+00005340 g     F .text	000000dc strlen
+000046c8 g     F .text	00000010 .hidden __aeabi_cdcmpeq
+0000462c g     F .text	0000008a .hidden __gedf2
+1fff8e4c g     O .data	00000016 usb_string_product_name_default
+00005468 g     F .text	00000018 vdprintf
+00002270  w    F .text	00000006 dma_ch1_isr
+00002750 g     F .text	0000002c usb_tx_packet_count
+00001ac4 g     F .text	00000024 i2c_t3::read_(i2cStruct*)
+00004160 g     F .text	0000003a .hidden __aeabi_f2d
+00002270  w    F .text	00000006 dma_ch5_isr
+00002270  w    F .text	00000006 can0_rx_warn_isr
+00002270  w    F .text	00000006 can0_tx_warn_isr
+00002270  w    F .text	00000006 uart4_status_isr
+00000000  w      *UND*	00000000 _Jv_RegisterClasses
+00003ea0 g     F .text	0000027a .hidden __subdf3
+00009258 g       .text	00000000 __preinit_array_start
+00005a00 g     F .text	0000005a __lo0bits
+00003e94  w    F .text	00000002 serialEvent3()
+00004768 g     F .text	0000000a __aeabi_atexit
+00000000  w      *UND*	00000000 __register_frame_info
+00002270  w    F .text	00000006 cmp2_isr
+00003d88 g     F .text	00000008 pendablesrvreq_isr
+000021d4 g     F .text	00000010 i2c_t3::sda0_rising_isr()
+0000046c  w    F .text	00000004 Print::availableForWrite()
+1fff92ac g     O .data	0000016c __global_locale
+1fff8d1c g     O .data	00000050 isr_table_portB
+00002270  w    F .text	00000006 wakeup_isr
+00002270  w    F .text	00000006 cmp3_isr
+000034f8 g     F .text	00000078 Print::printNumber(unsigned long, unsigned char, unsigned char)
+000047ec g     F .text	00000010 free
+00002270  w    F .text	00000006 tpm2_isr
+00005940 g     F .text	00000080 __multadd
+00001b1c g     F .text	00000022 i2c_t3::readByte_(i2cStruct*)
+0000592c g     F .text	00000012 _Bfree
+00002270  w    F .text	00000006 dma_ch0_isr
+1fff8e68  w    O .data	00000016 usb_string_serial_number
+00002270  w    F .text	00000006 enet_tx_isr
+
+

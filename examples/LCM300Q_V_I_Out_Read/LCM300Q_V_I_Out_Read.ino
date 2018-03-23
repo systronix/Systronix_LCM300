@@ -85,6 +85,8 @@ void setup(void)
  
   Serial.println("Setup Complete!");
   Serial.println(" "); 
+
+
   
 
 }
@@ -111,6 +113,10 @@ void loop(void)
   
 
   Serial.printf("@%u\r\n", millis()/1000);
+
+  read_cnt = 16;
+  result = lcm300_58.command_raw_read (MFR_ID_CMD, read_cnt, ascii);
+  Serial.printf("mfr ID: %s\r\n\n", ascii);  
   
   read_cnt = 4;
   result = lcm300_58.command_raw_read (MFR_VOUT_MAX_CMD, read_cnt, ascii);

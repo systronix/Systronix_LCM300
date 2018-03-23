@@ -54,7 +54,7 @@ uint16_t good=0;
 uint16_t bad=0;
 uint16_t raw16;
 
-char ascii[16];
+char ascii[32];
 
 uint8_t num_read;
 
@@ -121,6 +121,7 @@ void setup(void)
 }
 
 
+bool verbose = false; // don't print out detailed info about the PMBus command transaction
 
 /* ========== LOOP ========== */
 void loop(void) 
@@ -133,26 +134,31 @@ void loop(void)
   Serial.printf("@%u\r\n", millis()/1000);
   
 
-
-  result = lcm300_58.command_ascii_read(MFR_ID_CMD, 7, ascii);
-  Serial.printf("mfr ID: %s\r\n\n", ascii);
-
-
   read_cnt = 16;
-  result = lcm300_58.command_ascii_read (MFR_MODEL_CMD, read_cnt, ascii);
-  Serial.printf("model: %s\r\n\n", ascii);
 
-  read_cnt = 16;
-  result = lcm300_58.command_ascii_read (MFR_REVISION_CMD, read_cnt, ascii);
-  Serial.printf("revision: %s\r\n\n", ascii);
+  verbose = false;  // detailed debug data or not?
+  result = lcm300_58.command_ascii_read(MFR_ID_CMD, read_cnt, ascii, verbose);
+  Serial.printf("mfr ID: %s\r\n", ascii);
+
+  read_cnt = 10;
+  result = lcm300_58.command_ascii_read (MFR_MODEL_CMD, read_cnt, ascii, verbose);
+  Serial.printf("model: %s\r\n", ascii);
+
+  read_cnt = 4;
+  result = lcm300_58.command_ascii_read (MFR_REVISION_CMD, read_cnt, ascii, verbose);
+  Serial.printf("revision: %s\r\n", ascii);
  
-  read_cnt = 16;
-  result = lcm300_58.command_ascii_read (MFR_LOCATION_CMD, read_cnt, ascii);
-  Serial.printf("location: %s\r\n\n", ascii); 
+  read_cnt = 10;
+  result = lcm300_58.command_ascii_read (MFR_LOCATION_CMD, read_cnt, ascii, verbose);
+  Serial.printf("location: %s\r\n", ascii); 
 
   read_cnt = 8;
-  result = lcm300_58.command_ascii_read (MFR_SERIAL_CMD, read_cnt, ascii);
-  Serial.printf("Mfg Date: %s\r\n\n", ascii); 
+  result = lcm300_58.command_ascii_read (MFR_DATE_CMD, read_cnt, ascii, verbose);
+  Serial.printf("Mfg Date: %s\r\n", ascii); 
+
+  read_cnt = 10;
+  result = lcm300_58.command_ascii_read (MFR_SERIAL_CMD, read_cnt, ascii, verbose);
+  Serial.printf("Mfg Serial: %s\r\n", ascii);   
 
 
   Serial.println();

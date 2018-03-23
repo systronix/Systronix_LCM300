@@ -7,6 +7,8 @@
     @section	HISTORY
 
 
+
+	v0.2	2018Mar22 bboyes finishing up thanks to some tech support from Artesyn
     v0.1	2016Dec01 bboyes Start based on LCM300Q library
 
 */
@@ -389,14 +391,21 @@ to read the data piecemeal. This means you can't read the length byte and then r
 To read just the length it would be necessary to then start another command cycle. Which might be an OK approach.
 Then this function could read only the exact ascii data available.
 
+@param cmd, use the defined constants in the header file to be safe.
+@param length the most we will try to read. Maybe not needed now that we read ascii length. 
+However if this is not really ascii data we could misread some large value as the length.
+So this also prevents buffer overrun
+@param *data pointer to array to put the ascii data. Length value stripped. Null terminated.
+@param debug print out detailed cmd value, length byte, # read, hex values + char if printable 
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data)
+uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data, bool debug)
 	{
 	uint8_t ret_val;
 	size_t count;							// # bytes to read, generally length + 2
 	char char_read;
+	char char_print = 0x20;
 
 	if (!error.exists)						// exit immediately if device does not exist
 		return ABSENT;
@@ -413,7 +422,7 @@ uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data
 
 	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
-	Serial.printf("ascii read, cmd: 0x%X\r\n", cmd);
+	if (debug) Serial.printf("ascii read, cmd: 0x%X\r\n", cmd);
 
 	// now try to read the ascii data at that read command location
 
@@ -430,7 +439,7 @@ uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data
 		{
 		// should read length of ascii data avail at this command
 		char_read = _wire.readByte();
-		Serial.printf("ascii length byte = %u\r\n", (uint8_t) char_read);
+		if (debug) Serial.printf("ascii length byte = %u\r\n", (uint8_t) char_read);
 		}
 
 	_wire.beginTransmission (_base);						// base address
@@ -445,7 +454,7 @@ uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data
 	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
 	// now read the ascii data based on length we already read, but we re-read the length byte
-	count = char_read + 1;	// length of ascii data
+	count = char_read + 1;	// length of ascii data including length byte
 	if (count != _wire.requestFrom(_base, count, I2C_STOP))
 		{
 		Serial.printf("ascii data chars failed");
@@ -455,14 +464,22 @@ uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data
 		}
 	else
 		{
-		Serial.printf("%u ascii chars read\r\n", (uint8_t)count);	
+		if (debug) Serial.printf("%u ascii chars read\r\n", (uint8_t)count);	
 		}
 
 	uint8_t index=0;
 	while (_wire.available())
 		{
 		char_read = _wire.read();
-		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
+		if ((char_read < 0x20) || (char_read > 0x7E)) 
+			{
+			char_print = 0x20;	// unprintable? Use space
+			}
+		else
+			{
+			char_print = char_read;	// printable ascii	
+			}
+		if (debug) Serial.printf("%u:0x%02X/%c ", index, char_read, char_print);
 		if (0 == index)
 			{
 				// discard length in byte 0
@@ -477,6 +494,6 @@ uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data
 	if (index > 2)
 		data[index-1] = '\0'; 	// null term
 
-	Serial.println();
+	if (debug) Serial.println();
 	return SUCCESS;
 	}
