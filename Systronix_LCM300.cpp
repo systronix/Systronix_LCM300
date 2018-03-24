@@ -249,6 +249,9 @@ void Systronix_LCM300::tally_transaction (uint8_t value)
 
 
 //---------------------------< R E G I S T E R _ W R I T E >--------------------------------------------------
+
+//	NOT USED
+
 /**
 Param pointer is the LCM300Q register into which to write the data
 data is the 16 bits to write.
@@ -293,6 +296,8 @@ uint8_t Systronix_LCM300::register_write (uint8_t pointer, uint16_t data)
 // returns SUCCESS or FAIL
 //
 
+//	NOT USED
+
 uint8_t Systronix_LCM300::register_read (uint16_t *data)
 	{
 	uint8_t ret_val;
@@ -334,6 +339,8 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 	{
 	uint8_t ret_val;
 	char char_read;
+	char char_print = 0x20;
+	bool debug = true;
 
 	if (!error.exists)								// exit immediately if device does not exist
 		return ABSENT;
@@ -349,7 +356,7 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 
 	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
 
-	Serial.printf("cmd 0x%X, ", cmd);
+	if (debug) Serial.printf("cmd 0x%X, ", cmd);
 
 	// now try to read the ascii data at that read command location
 
@@ -361,17 +368,25 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 		return FAIL;
 		}
 
-	Serial.printf(" read %i bytes\r\n", count);	
+	if (debug) Serial.printf(" read %i bytes\r\n", count);	
 
 	uint8_t index=0;
 	while (_wire.available())
 		{
 		char_read = _wire.readByte();
-		Serial.printf("%u:0x%02X/%c ", index, char_read, char_read);
+		if ((char_read < 0x20) || (char_read > 0x7E)) 
+			{
+			char_print = 0x20;	// unprintable? Use space
+			}
+		else
+			{
+			char_print = char_read;	// printable ascii	
+			}
+		if (debug) Serial.printf("%u:0x%02X/%c ", index, char_read, char_print);
 		data[index++] = char_read;
 		}
 
-	Serial.printf ("\n");
+	if (debug) Serial.printf ("\n");
 	return SUCCESS;
 	}
 

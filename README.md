@@ -2,7 +2,8 @@
 Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
 
 ## Branches
-- SALT2v1_PowerDist2v0 supports the latest version of those boards
+- master - as of 2018 March, this is the current development branch. We may merge what little might be of interest from SALT2v1_PowerDist2v0
+- SALT2v1_PowerDist2v0 (superceded) was the branch Bruce was working on but Scott was on master
 - SALT2_PowerDist1 the old Master, supports SALT 2v0 and Power Dist 1v0, needs a special crossover cable between SALT and Power Dist with the swapped pins on the SALT end. SALT J1.2 -> PowerDist J2.1, SALT J1.3 -> PD J2.6, J1.1 -> J2.3, etc per schematics. This applies only to this revision of these boards.
 
 ## LCM300 Key Features
@@ -22,15 +23,14 @@ Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
  length of ASCII data given in the LCM300 data sheet is almost always wrong. So we use the len value from the PMBus interface not the data sheet values.
 
 ## Functions
- - commandRawRead (int cmd, size_t count, char *data) useful mostly for debugging and exploration, it is how I discovered many things about the LCM300 data format. Read cmd for count bytes and store the data in char data[]. This lets you try to print out the data as a string as well as inspecting it individually or as chars. This method does that so there is a lot of output for each call of the function. It produces output like this:
-	 cmd 0x99
-	 16 bytes avail
-	 0:0x07/ 1:0x45/E 2:0x4D/M 3:0x45/E 4:0x52/R 5:0x53/S 6:0x4F/O 7:0x4E/N 8:0x18/ 9:0xFF/ÿ 10:0xFF/ÿ 11:0xFF/ÿ 12:0xFF/ÿ 13:0xFF/ÿ 14:0xFF/ÿ 15:0xFF/ÿ 
-	 0 mfr ID bytes read: EMERSONÿÿÿÿÿÿÿ
+ - command_raw_read (int cmd, size_t count, char *data) useful mostly for debugging and exploration, it is how I discovered many things about the LCM300 data format. Read cmd for count bytes and store the data in char data[]. This lets you try to print out the data as a string as well as inspecting it individually or as chars. 
+ - command_ascii_read (int cmd, size_t length, char *data, bool debug)
 
 
 ## Examples
- - LCM300Q_MonitorDemo use commandRawRead to print out response to a command. Useful for exploration and debugging and likely little else. The first PMBus application I wrote.
+ - LCM300Q_CmdAsciiRead prints out a handful of ascii command values as proper length (read from the command response), null-terminated strings
+ - LCM300Q_CmdRawRead
+ - LCM300Q_V_I_Out_Read is a development test to verify "linear mode" data interpretation
 
 ### References
  - [PMBus 1.1 Spec in two parts](http://pmbus.org/) also see notes in cpp header file

@@ -123,9 +123,8 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 #define READ_POUT_CMD		0x96	// 2 byte lineaer, output power in watts
 
 // ASCII data
-// MFR ID and product data area, 0x99-0x9F ASCII data, 0xA0-0xAB "linear" data format 
-// 0x99-0x
-#define MFR_ID_CMD			0x99	// 7 bytes should be ASCII "Artesyn"
+// MFR ID and product data area, 0x99-0x9F ASCII data 
+#define MFR_ID_CMD			0x99	// ASCII such "Emerson" or maybe someday "Artesyn"
 #define MFR_MODEL_CMD		0x9A	// ASCII such as "LCM300Q-T"
 #define MFR_REVISION_CMD	0x9B	// ASCII such as "0A"
 #define MFR_LOCATION_CMD	0x9C	// ASCII such as "Philippines"
@@ -139,7 +138,7 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 
 #define COEFFICIENTS_CMD	0x30 	// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
 
-
+// 0xA0-0xAB "linear" data format
 #define MFR_VOUT_MIN_CMD	0xA4	// linear returns 0x2666, should be 19.2V
 #define MFR_VOUT_MAX_CMD	0xA5	// linear returns 0x3999, should be 28.8V
 #define MFR_IOUT_MAX_CMD	0xA6	// linear returns 0xD3A0 = 14.5 amps

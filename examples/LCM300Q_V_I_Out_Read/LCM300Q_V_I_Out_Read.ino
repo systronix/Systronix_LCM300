@@ -96,13 +96,15 @@ uint16_t good=0;
 uint16_t bad=0;
 uint16_t raw16;
 
-char ascii[32];
+char ascii[32];       // use if we expect ASCII string
+char raw_chars[16];   // use if we expect to convert to numerical value
 
 uint8_t num_read;
 
 uint8_t result;   // SUCCESS, FAIL, or ABSENT defined in library header
 
 size_t read_cnt;
+bool verbose = false; // don't print out detailed info about the PMBus command transaction
 
 /* ========== LOOP ========== */
 void loop(void) 
@@ -110,50 +112,50 @@ void loop(void)
 //  int16_t temp0;
 //  int8_t stat=-1;  // status flag
 //  float temp;
-  
 
   Serial.printf("@%u\r\n", millis()/1000);
 
   read_cnt = 16;
-  result = lcm300_58.command_raw_read (MFR_ID_CMD, read_cnt, ascii);
-  Serial.printf("mfr ID: %s\r\n\n", ascii);  
+  verbose = false;  // detailed debug data or not?
+  result = lcm300_58.command_ascii_read(MFR_ID_CMD, read_cnt, ascii, verbose);
+  Serial.printf("mfr ID: %s\r\n", ascii); 
+
+  Serial.printf("\nVout Mode: ");  
+  read_cnt = 1;
+  result = lcm300_58.command_raw_read (VOUT_MODE_CMD, read_cnt, raw_chars);
+  delay(50);
   
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (MFR_VOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("Mfr Vout Max: %s\r\n\n", ascii);  
+  Serial.printf("\nVout Command: ");  
+  read_cnt = 2;
+  result = lcm300_58.command_raw_read (VOUT_COMMAND_CMD, read_cnt, raw_chars);
+  delay(50);
+  
+  // read_cnt = 4;
+  // result = lcm300_58.command_raw_read (READ_VOUT_CMD, read_cnt, raw_chars);
+  // Serial.printf("Read Vout: %s\r\n\n", ascii);  
+  // delay(50);
+
+  // read_cnt = 4;
+  // result = lcm300_58.command_raw_read (MFR_VOUT_MAX_CMD, read_cnt, raw_chars);
+  // Serial.printf("Mfr Vout Max: %s\r\n", ascii); 
+
+  // read_cnt = 4;
+  // result = lcm300_58.command_raw_read (READ_IOUT_CMD, read_cnt, raw_chars);
+  // Serial.printf("Iout: %s\r\n\n", ascii);  
+
+  // read_cnt = 4;
+  // result = lcm300_58.command_raw_read (MFR_IOUT_MAX_CMD, read_cnt, raw_chars);
+  // Serial.printf("%u Iout Max: %s\r\n\n", ascii);   
 
   read_cnt = 2;
-  result = lcm300_58.command_raw_read (VOUT_MODE_CMD, read_cnt, ascii);
-  Serial.printf("Vout Mode: %s\r\n\n", ascii);  
-  delay(50);
-  
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (VOUT_COMMAND_CMD, read_cnt, ascii);
-  Serial.printf("Vout Set Command: %s\r\n\n", ascii);  
-  delay(50);
-  
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (READ_VOUT_CMD, read_cnt, ascii);
-  Serial.printf("Read Vout: %s\r\n\n", ascii);  
-  delay(50);
+  Serial.printf("\nTemperature 2: ");    
+  result = lcm300_58.command_raw_read (READ_TEMPERATURE_2_CMD, read_cnt, raw_chars);
+  delay(50);  
 
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (READ_IOUT_CMD, read_cnt, ascii);
-  Serial.printf("Iout: %s\r\n\n", ascii);  
-
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (MFR_IOUT_MAX_CMD, read_cnt, ascii);
-  Serial.printf("%u Iout Max: %s\r\n\n", ascii);   
-
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (READ_TEMPERATURE_2_CMD, read_cnt, ascii);
-  Serial.printf("Temperature 2: %s\r\n\n", ascii);  
-  delay(50);
-
-  read_cnt = 4;
-  result = lcm300_58.command_raw_read (READ_FAN_SPEED_CMD, read_cnt, ascii);
-  Serial.printf("Fan speed: %s\r\n\n", ascii); 
-
+  read_cnt = 2;
+  Serial.printf("\nFan speed: "); 
+  result = lcm300_58.command_raw_read (READ_FAN_SPEED_CMD, read_cnt, raw_chars);
+ 
   Serial.println();
   
   
