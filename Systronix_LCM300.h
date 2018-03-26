@@ -200,11 +200,11 @@ class Systronix_LCM300
 		uint8_t 	command_raw_read (int cmd, size_t count, char *data);
 
 		// Read a command register and convert the data using "linear" format
-		uint8_t 	command_linear_read16 (int cmd, uint16_t data, bool debug);
+		uint8_t 	command_linear_read16 (int cmd, uint16_t data, bool debug=false);
 
 		// Note that many LCM300 ASCII values do not match the LCM300 TRN 1.5 defaults
 		// Also many aspects are not documented in the LCM300 TRN. This function works correctly.
-		uint8_t 	command_ascii_read (int cmd, size_t length, char *data, bool debug);
+		uint8_t 	command_ascii_read (int cmd, size_t length, char *data, bool debug=false);
 
 		// These are not currently used and may have no purpose since you need to pass an address with every write or read
 		uint8_t		register_write (uint8_t pointer, uint16_t data);	// write 16 bits of data
