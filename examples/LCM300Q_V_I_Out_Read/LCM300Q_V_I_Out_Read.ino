@@ -113,6 +113,8 @@ void loop(void)
 //  int8_t stat=-1;  // status flag
 //  float temp;
 
+  uint16_t data16 = 0;
+
   Serial.printf("@%u\r\n", millis()/1000);
 
   read_cnt = 16;
@@ -129,32 +131,38 @@ void loop(void)
   read_cnt = 2;
   result = lcm300_58.command_raw_read (VOUT_COMMAND_CMD, read_cnt, raw_chars);
   delay(50);
+
+  result = lcm300_58.command_linear_read16 (VOUT_COMMAND_CMD, data16, true);
+  delay(50);  
   
-  // read_cnt = 4;
-  // result = lcm300_58.command_raw_read (READ_VOUT_CMD, read_cnt, raw_chars);
-  // Serial.printf("Read Vout: %s\r\n\n", ascii);  
-  // delay(50);
+  Serial.printf("\nRead Vout Command: ");
+  result = lcm300_58.command_linear_read16 (READ_VOUT_CMD, data16, true);
+  //Serial.printf("Read Vout: %.2f\r\n\n", data16);  
+  delay(50);
 
   // read_cnt = 4;
   // result = lcm300_58.command_raw_read (MFR_VOUT_MAX_CMD, read_cnt, raw_chars);
   // Serial.printf("Mfr Vout Max: %s\r\n", ascii); 
 
-  // read_cnt = 4;
-  // result = lcm300_58.command_raw_read (READ_IOUT_CMD, read_cnt, raw_chars);
-  // Serial.printf("Iout: %s\r\n\n", ascii);  
+  Serial.printf("\nRead Iout Command: ");
+  result = lcm300_58.command_linear_read16 (READ_IOUT_CMD, data16, true);
+
 
   // read_cnt = 4;
   // result = lcm300_58.command_raw_read (MFR_IOUT_MAX_CMD, read_cnt, raw_chars);
   // Serial.printf("%u Iout Max: %s\r\n\n", ascii);   
 
-  read_cnt = 2;
+  // read_cnt = 2;
   Serial.printf("\nTemperature 2: ");    
-  result = lcm300_58.command_raw_read (READ_TEMPERATURE_2_CMD, read_cnt, raw_chars);
+  result = lcm300_58.command_linear_read16 (READ_TEMPERATURE_2_CMD, data16, true);
   delay(50);  
 
-  read_cnt = 2;
+
   Serial.printf("\nFan speed: "); 
-  result = lcm300_58.command_raw_read (READ_FAN_SPEED_CMD, read_cnt, raw_chars);
+  result = lcm300_58.command_linear_read16 (READ_FAN_SPEED_CMD, data16, true);
+
+  // Serial.printf("\nFan command 1: "); 
+  // result = lcm300_58.command_linear_read16 (FAN_COMMAND_1, data16, true);
  
   Serial.println();
   

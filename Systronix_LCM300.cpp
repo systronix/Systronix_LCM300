@@ -339,7 +339,6 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 	{
 	uint8_t ret_val;
 	char char_read;
-	char char_print = 0x20;
 	bool debug = true;
 
 	if (!error.exists)								// exit immediately if device does not exist
@@ -374,15 +373,7 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 	while (_wire.available())
 		{
 		char_read = _wire.readByte();
-		if ((char_read < 0x20) || (char_read > 0x7E)) 
-			{
-			char_print = 0x20;	// unprintable? Use space
-			}
-		else
-			{
-			char_print = char_read;	// printable ascii	
-			}
-		if (debug) Serial.printf("%u:0x%02X/%c ", index, char_read, char_print);
+		if (debug) Serial.printf("%u:0x%02X ", index, char_read);
 		data[index++] = char_read;
 		}
 
@@ -390,6 +381,80 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
 	return SUCCESS;
 	}
 
+//---------------------------< C O M M A N D _ L I N E A R _ R E A D 1 6 >--------------------------
+/**
+
+	Wire.readByte returns a uint8_t or 0 if buffer empty
+
+*/
+uint8_t Systronix_LCM300::command_linear_read16 (int cmd, uint16_t data, bool debug) 
+	{
+	uint8_t ret_val;
+	uint8_t byte_read;
+	size_t count = 2;			// how many bytes we will read
+	float vout;
+
+	if (!error.exists)								// exit immediately if device does not exist
+		return ABSENT;
+
+	_wire.beginTransmission (_base);						// base address
+	ret_val = _wire.write (cmd);							// PMBus command code
+
+	if (1 != ret_val)
+		{
+		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
+		return FAIL;
+		}
+
+	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+
+	if (debug) Serial.printf("cmd 0x%X, ", cmd);
+
+	// now try to read the data at that read command location
+
+	if (count != _wire.requestFrom(_base, count, I2C_STOP))
+		{
+		Serial.println("linear16 read wrong number of bytes available");
+		ret_val = _wire.status();						// to get error value
+		tally_transaction (ret_val);					// increment the appropriate counter
+		return FAIL;
+		}
+
+	if (debug) Serial.printf(" read %i bytes\r\n", count);	
+
+	uint8_t index=0;
+	while (_wire.available())
+		{
+		byte_read = _wire.readByte();
+		if (debug) Serial.printf("%u:0x%02X ", index, byte_read);
+		if (0==index) 
+			{
+			data = byte_read;		// LSB
+			if (debug) Serial.printf ("data: 0x%04X\n", data);
+			}
+		else 
+			{
+			data |= (uint16_t)(byte_read<<8);
+			if (debug) Serial.printf ("data: 0x%04X\n", data);
+			}
+		index++;
+		}
+
+	if (debug) Serial.printf ("data: 0x%04X\n", data);
+
+	vout = data;
+	if (debug) Serial.printf ("data: %.2f\n", vout);
+
+	// divide by exponent
+	data = data/0x0200;
+	vout = vout/512;
+
+	if (debug) Serial.printf ("data: 0x%04X, %u\n", data, data);
+	if (debug) Serial.printf ("data float: %.2f\n", vout);
+	return SUCCESS;
+
+
+	}
 
 //---------------------------< C O M M A N D _ A S C I I _ R E A D >------------------------------------------
 /**

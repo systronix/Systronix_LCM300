@@ -115,12 +115,15 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 // LCM300W 0x3C0 = 60V
 #define VOUT_MAX_CMD 		0x24	// 16-bit max output voltage, read-only, returns 0x3999, same as 0xA5
 
-#define READ_VOUT_CMD		0x8B	// 16-bit measured output voltage, returns 0x300F for 0x21 = 0x3033
-#define READ_IOUT_CMD		0x8C	// 16-bit measured output current
+#define FAN_COMMAND_1		0x3B	// 2 byte linear, but only ever returns 0
+
+#define READ_VOUT_CMD		0x8B	// 2-byte linear format, 0x3014 = 24.04, 0x3019 = 24.05, 0x301E = 24.06
+#define READ_IOUT_CMD		0x8C	// 16-bit measured output current, 5% accurate at load of 40% and greater
 #define READ_TEMPERATURE_2_CMD	0x8D	// 2 bytes, Linear-11 format
 
-#define READ_FAN_SPEED_CMD	0x90 	//
-#define READ_POUT_CMD		0x96	// 2 byte lineaer, output power in watts
+#define READ_FAN_SPEED_CMD	0x90 	// reads 2595 raw 0x0A23 when stalled, 6873 running, not divided by exponent
+
+#define READ_POUT_CMD		0x96	// 2 byte linear, output power in watts
 
 // ASCII data
 // MFR ID and product data area, 0x99-0x9F ASCII data 
@@ -193,10 +196,14 @@ class Systronix_LCM300
 
 		uint8_t		base_get (void);
 
-		// This is the only currently-used command
+		// This is the a currently-used function
 		uint8_t 	command_raw_read (int cmd, size_t count, char *data);
 
-		// Note that the LCM300 ASCII values 
+		// Read a command register and convert the data using "linear" format
+		uint8_t 	command_linear_read16 (int cmd, uint16_t data, bool debug);
+
+		// Note that many LCM300 ASCII values do not match the LCM300 TRN 1.5 defaults
+		// Also many aspects are not documented in the LCM300 TRN. This function works correctly.
 		uint8_t 	command_ascii_read (int cmd, size_t length, char *data, bool debug);
 
 		// These are not currently used and may have no purpose since you need to pass an address with every write or read
