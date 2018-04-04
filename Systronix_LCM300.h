@@ -7,12 +7,12 @@
 	@file		Systronix_LCM300.h
 	
 	@author		B Boyes (Systronix Inc)
-    @license	TBD (see license.txt)	
-    @section	HISTORY
+	@license	TBD (see license.txt)	
+	@section	HISTORY
 
 
 	v0.2	2018Mar22 bboyes finishing up thanks to some tech support from Artesyn
-    v0.1	2016Dec01 bboyes Start based on LCM300 library
+	v0.1	2016Dec01 bboyes Start based on LCM300 library
 
 */
 /**************************************************************************************************/
@@ -24,7 +24,7 @@ Read ascii data, based on first byte, null-terminate returned string
 
 Add UI screens to report:
 
-Power model and revision, e.g. "LCM300Q-T AK"  // 0x9A and 0x9B
+Power model and revision, e.g. "LCM300Q-T AK"	// 0x9A and 0x9B
 
 **/
 
@@ -69,19 +69,24 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 #define		WR_INCOMPLETE		11
 #define		SILLY_PROGRAMMER	12
 
+#define		LCM300_BASE_MIN 	0x58	// 7-bit address not including R/W bit
+#define		LCM300_BASE_MAX 	0x5F	// 7-bit address not including R/W bit
+
+#define		ASCII				17		// length byte + 16 payload bytes
+#define		LINEAR				2		// 2 byte PMBus literal values (5 bits exponent, 11 bits mantissa) or voltage 16-bit mantissa
+#define		A_BYTE				1		// single byte; not encoded but may be bit mapped (this name because BYTE defined elsewhere)
+#define		A_WORD				2		// two bytes; not encoded but may be bit mapped (this name because similar to A_BYTE
+
 
 /** --------  Register Addresses --------
 
 */
 
-#define LCM300_BASE_MIN 			0x58  // 7-bit address not including R/W bit
-#define LCM300_BASE_MAX 			0x5F  // 7-bit address not including R/W bit
-
-#define LCM300_PAGE_CMD 			0x00  // 8-bit read-only ???
+#define LCM300_PAGE_CMD 			0x00				// 8-bit read-only ???
 
 // on/off and low/high margin voltage select
 // default = 0x80
-#define LCM300_OPERATION_CMD 		0x01  // 8-bit read/write
+#define LCM300_OPERATION_CMD 		0x01				// 8-bit read/write
 
 // WRITE PROTECT register 0x10 has four possible mutually-exclusive values
 // 00h – Enable writing to all writeable commends
@@ -89,68 +94,101 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 // 40h – Disables write except 10h, 01h, and 00h commends
 // 80h – Disable write except 0x10h
 // Note: Write access to the write protect register is always enabled!
-#define LCM300_WRITE_PROTECT_CMD 	0x10  // 8-bit write control, read/write
+#define LCM300_WRITE_PROTECT_CMD 	0x10				// 8-bit write control, read/write
 
 // values for the WRITE PROTECT register
-#define LCM300_WP_DISABLE_ALL		0x80  // disable write to all (except WP 0x10)
-#define LCM300_WP_ENABLE_OPER_PAGE	0x40  // enable write to PAGE and OPERATION
-#define LCM300_WP_ENABLE_OPER_PAGE_ONOFF_VOUT	0x20  // enable write to PAGE, OPERATION, ON_OFF_CONFIG, VOUT_COMMAND
-#define LCM300_WP_ENABLE_ALL		0x00  // enable write to all writeable commands
+#define LCM300_WP_DISABLE_ALL		0x80				// disable write to all (except WP 0x10)
+#define LCM300_WP_ENABLE_OPER_PAGE	0x40				// enable write to PAGE and OPERATION
+#define LCM300_WP_ENABLE_OPER_PAGE_ONOFF_VOUT	0x20	// enable write to PAGE, OPERATION, ON_OFF_CONFIG, VOUT_COMMAND
+#define LCM300_WP_ENABLE_ALL		0x00				// enable write to all writeable commands
 
 // VOUT_MODE, per PMBus specs
 // 3 msb are the mode. 
 // 000 = linear mode, 
 // 5 lsb are a signed 2's complement exponent
-#define VOUT_MODE_CMD		0x20	// read read-only, 0x17 for our supply
+#define VOUT_MODE_CMD_VAL			0x20				// read read-only, 0x17 for our supply
 
 // Set output voltage.
 // LCM300 default 0x2FE6 = 24V in Tech Note but these may all be wrong!
 // LCM300U default 0x3F9E = 36V
 // LCM300W default 0x2FEB = 48V
-#define VOUT_COMMAND_CMD 	0x21  // 16-bit output voltage set, read/write, returns 0x3033 and 0x3038
+#define VOUT_COMMAND_CMD_VAL 		0x21				// 16-bit output voltage set, read/write, returns 0x3033 and 0x3038
 
 // Read the max output voltage. 
 // LCM300 0x3999 = 28.9V
 // LCM300U 0x5666 = 43.2V
 // LCM300W 0x3C0 = 60V
-#define VOUT_MAX_CMD 		0x24	// 16-bit max output voltage, read-only, returns 0x3999, same as 0xA5
+#define VOUT_MAX_CMD_VAL 			0x24				// 16-bit max output voltage, read-only, returns 0x3999, same as 0xA5
 
-#define FAN_COMMAND_1		0x3B	// 2 byte linear, but only ever returns 0
+#define FAN_COMMAND_1				0x3B				// 2 byte linear, but only ever returns 0
 
-#define READ_VOUT_CMD		0x8B	// 2-byte linear format, 0x3014 = 24.04, 0x3019 = 24.05, 0x301E = 24.06
-#define READ_IOUT_CMD		0x8C	// 16-bit measured output current, 5% accurate at load of 40% and greater
-#define READ_TEMPERATURE_2_CMD	0x8D	// 2 bytes, Linear-11 format
+#define READ_EOUT_CMD_VAL			0x87				// 2-byte linear format, Returns the accumulated output power over time
+#define READ_VOUT_CMD_VAL			0x8B				// 2-byte linear format, 0x3014 = 24.04, 0x3019 = 24.05, 0x301E = 24.06
+#define READ_IOUT_CMD_VAL			0x8C				// 16-bit measured output current, 5% accurate at load of 40% and greater
+#define READ_TEMPERATURE_2_CMD_VAL	0x8D				// 2 bytes, Linear-11 format
 
-#define READ_FAN_SPEED_CMD	0x90 	// reads 2595 raw 0x0A23 when stalled, 6873 running, not divided by exponent
+#define READ_FAN_SPEED_CMD_VAL		0x90 				// reads 2595 raw 0x0A23 when stalled, 6873 running, not divided by exponent
 
-#define READ_POUT_CMD		0x96	// 2 byte linear, output power in watts
+#define READ_POUT_CMD_VAL			0x96				// 2 byte linear, output power in watts
 
 // ASCII data
 // MFR ID and product data area, 0x99-0x9F ASCII data 
-#define MFR_ID_CMD			0x99	// ASCII such "Emerson" or maybe someday "Artesyn"
-#define MFR_MODEL_CMD		0x9A	// ASCII such as "LCM300Q-T"
-#define MFR_REVISION_CMD	0x9B	// ASCII such as "0A"
-#define MFR_LOCATION_CMD	0x9C	// ASCII such as "Philippines"
+#define MFR_ID_CMD_VAL				0x99				// ASCII such "Emerson" or maybe someday "Artesyn"
+#define MFR_MODEL_CMD_VAL			0x9A				// ASCII such as "LCM300Q-T"
+#define MFR_REVISION_CMD_VAL		0x9B				// ASCII such as "0A"
+#define MFR_LOCATION_CMD_VAL		0x9C				// ASCII such as "Philippines"
 
-#define MFR_DATE_CMD		0x9D	// ASCII such as "YYMMDD" Confusion across different models: YYWWDD? YYWW? YYMMDD?
+#define MFR_DATE_CMD_VAL			0x9D				// ASCII such as "YYMMDD" Confusion across different models: YYWWDD? YYWW? YYMMDD?
 
-// MFR_SERIAL_CMD returns a length value of 0x0d, 13 bytes
-#define MFR_SERIAL_CMD		0x9E	// ASCII such as "123456789ABCD". Length "varies" re: TRN 1.5 p63
+														// MFR_SERIAL_CMD returns a length value of 0x0d, 13 bytes
+#define MFR_SERIAL_CMD_VAL			0x9E				// ASCII such as "123456789ABCD". Length "varies" re: TRN 1.5 p63
 
-#define PMBUS_REVISION_CMD	0x98	// binary, 1 byte unsigned 0x22 = PMBus revision 2.2
+#define PMBUS_REVISION_CMD_VAL		0x98				// binary, 1 byte unsigned 0x22 = PMBus revision 2.2
 
-#define COEFFICIENTS_CMD	0x30 	// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
+#define COEFFICIENTS_CMD_VAL		0x30 				// not implememented, returns 0xFF. For LCM300 m=1, b=0, R=0
 
 // 0xA0-0xAB "linear" data format
-#define MFR_VOUT_MIN_CMD	0xA4	// linear returns 0x2666, should be 19.2V
-#define MFR_VOUT_MAX_CMD	0xA5	// linear returns 0x3999, should be 28.8V
-#define MFR_IOUT_MAX_CMD	0xA6	// linear returns 0xD3A0 = 14.5 amps
+#define MFR_VOUT_MIN_CMD_VAL		0xA4				// linear returns 0x2666, should be 19.2V
+#define MFR_VOUT_MAX_CMD_VAL		0xA5				// linear returns 0x3999, should be 28.8V
+#define MFR_IOUT_MAX_CMD_VAL		0xA6				// linear returns 0xD3A0 = 14.5 amps
 
+#define	STATUS_BYTE_CMD_VAL			0x78				// bit mapped status byte
+#define	STATUS_WORD_CMD_VAL			0x79				// bit mapped status word
+#define	STATUS_VOUT_CMD_VAL			0x7A				// bit mapped status byte
+#define	STATUS_IOUT_CMD_VAL			0x7B				// bit mapped status byte
+#define	STATUS_TEMP_CMD_VAL			0x7D				// bit mapped status byte
 
-
+enum {													// these enums are indexes into the cmd array of structs
+	VOUT_MODE_CMD,										// !!! NOTE: additions here require same-position additions to the enum !!!
+	VOUT_COMMAND_CMD,
+	VOUT_MAX_CMD,
+	READ_EOUT_CMD,
+	READ_VOUT_CMD,
+	READ_IOUT_CMD,
+	READ_TEMPERATURE_2_CMD,
+	READ_FAN_SPEED_CMD,
+	READ_POUT_CMD,
+	MFR_ID_CMD,
+	MFR_MODEL_CMD,
+	MFR_REVISION_CMD,
+	MFR_LOCATION_CMD,
+	MFR_DATE_CMD,
+	MFR_SERIAL_CMD,
+	PMBUS_REVISION_CMD,
+	MFR_VOUT_MIN_CMD,
+	MFR_VOUT_MAX_CMD,
+	MFR_IOUT_MAX_CMD,
+	STATUS_BYTE_CMD,
+	STATUS_WORD_CMD,
+	STATUS_VOUT_CMD,
+	STATUS_IOUT_CMD,
+	STATUS_TEMP_CMD,
+	CMD_ARRAY_SIZE										// this must be the last member of the enum
+	};
+	
 
 class Systronix_LCM300
-{
+	{
 	protected:
 		uint8_t		_base;								// base address for this instance; four possible values
 		void		tally_transaction (uint8_t);		// maintains the i2c_t3 error counters
@@ -159,7 +197,7 @@ class Systronix_LCM300
 		i2c_t3		_wire = Wire;						// why is this assigned value = Wire? [bab]
 
 		uint8_t 	_vout_mode;							// the 3 msb of VOUT_MODE, shifted to 3 lsb of this value
-		uint8_t		_linear_exponent;					// the 5 lsb of VOUT_MODE in signed 2's complement
+		int8_t		_linear_exponent;					// the 5 lsb of VOUT_MODE in signed 2's complement
 
 	public:
 		struct
@@ -183,7 +221,67 @@ class Systronix_LCM300
 
 		char*		wire_name;							// name of Wire, Wire1, etc in use
 
-		uint8_t		setup (uint8_t base, i2c_t3 wire, char* name);				// constructor
+/*		struct data_t									// does this struct have any value?
+			{
+			uint8_t		vout_mode_raw;
+			uint16_t	vout_command_raw;
+			uint16_t	vout_max_raw;
+			uint16_t	read_vout_raw;
+			uint16_t	read_iout_raw;
+			uint16_t	read_temp_2_raw;
+			uint16_t	read_fans_speed_raw;
+			uint16_t	read_pout_raw;
+			char		mfr_id[ASCII+1];
+			char		mfr_model[ASCII+1];				// +1 for NULL byte
+			char		mfr_revision[ASCII+1];
+			char		mfr_location[ASCII+1];
+			char		mfr_serial[ASCII+1];
+			char		mfr_vout_min[ASCII+1];
+			char		mfr_vout_max[ASCII+1];
+			char		mfr_iout_max[ASCII+1];
+			} data;
+*/
+
+		struct lcm300_cmd_struct
+			{
+			uint8_t		cmd_byte;						// from the defines above
+			size_t		count;							// number of bytes the command reads
+			} cmd[CMD_ARRAY_SIZE]=						// !!! NOTE: additions here require same-position additions to the enum !!!
+				{
+				{VOUT_MODE_CMD_VAL,				A_BYTE},
+				{VOUT_COMMAND_CMD_VAL,			LINEAR},
+				{VOUT_MAX_CMD_VAL,				LINEAR},
+				{READ_EOUT_CMD_VAL,				LINEAR},	// power over some time interval; requires raw_voltage_to_float(); (because E means volts?)
+				{READ_VOUT_CMD_VAL,				LINEAR},
+				{READ_IOUT_CMD_VAL,				LINEAR},
+				{READ_TEMPERATURE_2_CMD_VAL,	LINEAR},
+				{READ_FAN_SPEED_CMD_VAL,		LINEAR},
+				{READ_POUT_CMD_VAL,				LINEAR},	// power, but this is PMBus literal
+				{MFR_ID_CMD_VAL,				ASCII},		// length byte + 16 payload bytes - even if we don't need that many,
+				{MFR_MODEL_CMD_VAL,				ASCII},		// easier to just read 17 than to do separate operations
+				{MFR_REVISION_CMD_VAL,			ASCII},		// that figure out exactly how many bytes to read
+				{MFR_LOCATION_CMD_VAL,			ASCII},
+				{MFR_DATE_CMD_VAL,				ASCII},		// pointless; returns string 'YYMMDD'
+				{MFR_SERIAL_CMD_VAL,			ASCII},		// pointless; returns string '123456789ABCD'
+				{PMBUS_REVISION_CMD_VAL,		A_BYTE},
+				{MFR_VOUT_MIN_CMD_VAL,			LINEAR},
+				{MFR_VOUT_MAX_CMD_VAL,			LINEAR},
+				{MFR_IOUT_MAX_CMD_VAL,			LINEAR},
+				{STATUS_BYTE_CMD_VAL,			A_BYTE},
+				{STATUS_WORD_CMD_VAL,			A_WORD},
+				{STATUS_VOUT_CMD_VAL,			A_BYTE},
+				{STATUS_IOUT_CMD_VAL,			A_BYTE},
+				{STATUS_TEMP_CMD_VAL,			A_BYTE}
+				};
+
+		union											// command responses are written here
+			{
+			char		as_array[ASCII+1];				// length byte + max sixteen payload bytes + NULL terminator (always write here but fetch from any one of the three)
+			uint16_t	as_word;
+			uint8_t		as_byte;
+			} cmd_response;
+
+		uint8_t		setup (uint8_t base, i2c_t3 wire, char* name);	// constructor
 
 		void		begin (i2c_pins pins);
 		void		begin (void)						// default begin() (Wire0)
@@ -196,24 +294,15 @@ class Systronix_LCM300
 
 		uint8_t		base_get (void);
 
-		// This is the a currently-used function
-		uint8_t 	command_raw_read (int cmd, size_t count, char *data);
+		uint8_t 	command_raw_read (int cmd_idx, bool debug=false);	// read raw data from lcm300 in response to command indexed by cmd_idx
 
-		// Read a command register and convert the data using "linear" format
-		uint8_t 	command_linear_read16 (int cmd, uint16_t data, bool debug=false);
+		float		raw_voltage_to_float (uint16_t volt_raw);
+		float		pmbus_literal_to_float (uint16_t literal_raw);
 
-		// Note that many LCM300 ASCII values do not match the LCM300 TRN 1.5 defaults
-		// Also many aspects are not documented in the LCM300 TRN. This function works correctly.
-		uint8_t 	command_ascii_read (int cmd, size_t length, char *data, bool debug=false);
+		private:
 
-		// These are not currently used and may have no purpose since you need to pass an address with every write or read
-		uint8_t		register_write (uint8_t pointer, uint16_t data);	// write 16 bits of data
-		uint8_t		register_read (uint16_t *data);						// read 16 bits of data
+	};
 
-	private:
-
-};
-
-//extern Systronix_LCM300 lcm300;
+extern Systronix_LCM300 lcm300;
 
 #endif /* SYSTRONIX_LCM300_h */

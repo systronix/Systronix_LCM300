@@ -23,7 +23,7 @@ Caution: the 5V 2A standby power available as option '4' is unregulated!
 It can vary from 4.8 - 5.4 volts. Confirmed by email 2016 Nov 23.
 The data sheet claiming 1% regulation is wrong. We notified Artesyn of this.
 
--------- Teensy Target Hardware and i2c_t3 library
+-------- Teensy Target Hardware and i2c_t3 library --------
 
 i2c_t3 documentation is at https://forum.pjrc.com/threads/21680-New-I2C-library-for-Teensy3
 
@@ -46,7 +46,7 @@ Phone and e-mail communication with Artesyn technical support
 
 The LCM300 series includes 24V output, the LCM300Q. LCM300U is 36V, LCM300W is 48V.
 
--------- PMBus Support -------------------------------------------------------------------------
+-------- PMBus Support --------
 
 All LCM300 series support PMBus Version 1.1 at up to 100 KHz. No 400 kHz possible. This is
 according to email from Artesyn tech support. Command 0x98 holds "22" as PMBus revision; what
@@ -61,7 +61,7 @@ supply in the family. For the LCM300Q, 21h default is 0x2FE6 = 24V and the
 range is 19.09 to 33.60 volts. However VOUT_MAX (command 24h) limits max output
 voltage to 0x3999 = 28.9V
 
---------  PMBus Addressing --------
+-------- PMBus Addressing --------
 
 The address bits A2, A1, A0 are internally pulled up to 2.7V so by default they are asserted.
 LCM300 base address is 8-bit address 0xBE including R/W bit as 0 (B 1011 111x) where x is R/W
@@ -71,11 +71,11 @@ By the Arduino convention 8-bit 0xBE is 7-bit address 0x5F ignoring the R/W bit
 If all the address bits are low, that is 7-bit address 0x58 ignoring the R/W bit.
 Therefore the possible address range is the eight 7-bit addresses 0x5[8..F]
 
---------  PMBus Reads --------
+-------- PMBus Reads --------
 
 
 
---------  PMBus Writes --------
+-------- PMBus Writes --------
 
 Page 35 of the Technical Note calls out the need to enable writing to writeable registers before
 you can change their contents.
@@ -132,21 +132,25 @@ uint8_t Systronix_LCM300::base_get(void)
 
 //---------------------------< I N I T >----------------------------------------------------------------------
 //
-// Attempts to write the pointer register.  If successful, sets control.exists true, else false.
+// Attempts to fetch the Vout Mode byte (voltage measurement exponent).  If successful, sets control.exists true, false else.
+//
+// Exponent is in the 5 lsbs; signed 2's complement; upper three bits may have value but for the exponent should
+// be set or cleared according to the state of bit 4 (sign bit); this is the sign extension.
 //
 
 uint8_t Systronix_LCM300::init (void)
 	{
-	_wire.beginTransmission (_base);					// base address
-
-	if (_wire.endTransmission())						// returns 0 if got an ACK from LCM300
+	error.exists = true;								// here, assume that the device exists
+	if (SUCCESS != command_raw_read (VOUT_MODE_CMD))	// did we get the raw exponent?
 		{
 		error.exists = false;							// unsuccessful i2c transaction
-		return FAIL;
+		return ABSENT;
 		}
-	
-	error.exists = true;								// if here, we appear to have communicated with
-	return SUCCESS;										// the LCM300
+														// sign extend the exponent to 8 bits
+	_linear_exponent = (cmd_response.as_byte & 0x10) ? (cmd_response.as_byte | 0xE0) : (cmd_response.as_byte & 0x1F);
+	_vout_mode = (cmd_response.as_byte & 0xE0) >> 5;	// shift mode bits into 3 lsbs
+
+	return SUCCESS;
 	}
 
 
@@ -156,9 +160,9 @@ uint8_t Systronix_LCM300::init (void)
 	@return nothing
 */
 void Systronix_LCM300::reset_bus (void)
-{
+	{
 	_wire.resetBus();
-}
+	}
 
 
 //---------------------------< R E S E T _ B U S _ C O U N T _ R E A D >--------------------------------------
@@ -167,9 +171,9 @@ void Systronix_LCM300::reset_bus (void)
 	@return number of Wire net resets, clips at UINT32_MAX
 */
 uint32_t Systronix_LCM300::reset_bus_count_read(void)
-{
+	{
 	return _wire.resetBusCountRead();
-}
+	}
 
 
 //---------------------------< T A L L Y _ T R A N S A C T I O N >--------------------------------------------
@@ -248,332 +252,102 @@ void Systronix_LCM300::tally_transaction (uint8_t value)
 	}
 
 
-//---------------------------< R E G I S T E R _ W R I T E >--------------------------------------------------
-
-//	NOT USED
-
-/**
-Param pointer is the LCM300Q register into which to write the data
-data is the 16 bits to write.
-returns SUCCESS or FAIL
-**/
-
-uint8_t Systronix_LCM300::register_write (uint8_t pointer, uint16_t data)
-	{
-	uint8_t ret_val;
-
-	if (!error.exists)									// exit immediately if device does not exist
-		return ABSENT;
-
-	_wire.beginTransmission (_base);					// base address
-	ret_val = _wire.write (pointer);					// pointer in 2 lsb
-	ret_val += _wire.write ((uint8_t)(data >> 8));		// write MSB of data
-	ret_val += _wire.write ((uint8_t)(data & 0x00FF));	// write LSB of data
-
-	if (3 != ret_val)
-		{
-		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
-		return FAIL;
-		}
-
-	ret_val = _wire.endTransmission();
-	
-	if (SUCCESS != ret_val)
-		{
-		tally_transaction (ret_val);					// increment the appropriate counter
-		return FAIL;									// calling function decides what to do with the error
-		}
-
-	tally_transaction (SUCCESS);
-	return SUCCESS;
-	}
-
-
-//---------------------------< R E G I S T E R _ R E A D >-----------------------------------------------------
-//
-// Read the 16-bit register addressed by the command, store the data at the location passed
-//
-// returns SUCCESS or FAIL
-//
-
-//	NOT USED
-
-uint8_t Systronix_LCM300::register_read (uint16_t *data)
-	{
-	uint8_t ret_val;
-
-	if (!error.exists)								// exit immediately if device does not exist
-		return ABSENT;
-
-	if (2 != _wire.requestFrom(_base, 2, I2C_STOP))
-		{
-		ret_val = _wire.status();					// to get error value
-		tally_transaction (ret_val);				// increment the appropriate counter
-		return FAIL;
-		}
-
-	*data = (uint16_t)_wire.readByte() << 8;
-	*data |= (uint16_t)_wire.readByte();
-
-	tally_transaction (SUCCESS);
-	return SUCCESS;
-	}
-
-
 //---------------------------< C O M M A N D _ R A W _ R E A D >----------------------------------------------
 /**
-Read the RAW data received in response to cmd, store it in char array data
+Read the RAW data received in response to cmd, store it in cmd_response.as_array[]
 Data could be any type, so an attempt to print as string may be unreadable.
 But it is useful for debug and exploration
-
 Note that PMBus reads are not memory locations, and whatever number you request seems to be "available"
 even if the data is really junk. For example you can "read" 'm' number of bytes from a command which only 
 returns 'n' actual data bytes. Usually n+1 is some consistent value <0xFF and n+[2,3,...] are 0xFF
-
 Note that byte 0 of LCM300 ascii commands is the length of the string, and string is not null terminated.
-
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::command_raw_read (int cmd, size_t count, char *data)
+uint8_t Systronix_LCM300::command_raw_read (int cmd_idx, bool debug)
 	{
 	uint8_t ret_val;
-	char char_read;
-	bool debug = true;
+	size_t	count = cmd[cmd_idx].count;							// number of bytes to read
+	uint8_t index = 0;
 
-	if (!error.exists)								// exit immediately if device does not exist
+	if (!error.exists)											// exit immediately if device does not exist
 		return ABSENT;
 
-	_wire.beginTransmission (_base);						// base address
-	ret_val = _wire.write (cmd);							// PMBus command code
+	delay(50);													// exists; ensure that we meet datasheet communication interval spec
+
+	_wire.beginTransmission (_base);							// base address
+	ret_val = _wire.write (cmd[cmd_idx].cmd_byte);				// PMBus command code
 
 	if (1 != ret_val)
 		{
-		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
+		tally_transaction (WR_INCOMPLETE);						// increment the appropriate counter
 		return FAIL;
 		}
 
-	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
+	_wire.endTransmission(I2C_NOSTOP); 							// don't send a stop condition, PMBus wants a repeated start
 
-	if (debug) Serial.printf("cmd 0x%X, ", cmd);
+	if (debug) Serial.printf("cmd 0x%X, ", cmd[cmd_idx].cmd_byte);
 
-	// now try to read the ascii data at that read command location
-
-	if (count != _wire.requestFrom(_base, count, I2C_STOP))
+	ret_val = _wire.requestFrom(_base, count, I2C_STOP);		// returns # of bytes received
+	if (0 == ret_val || ASCII < ret_val)						// 0 is error; so is more than 17
 		{
-		Serial.println("raw read wrong number of bytes available");
-		ret_val = _wire.status();						// to get error value
-		tally_transaction (ret_val);					// increment the appropriate counter
+		Serial.printf ("raw read: invalid response length: %d bytes\n", ret_val);
+		ret_val = _wire.status();								// to get error value
+		tally_transaction (ret_val);							// increment the appropriate counter
 		return FAIL;
 		}
 
-	if (debug) Serial.printf(" read %i bytes\r\n", count);	
+	if (debug) Serial.printf(" read %i bytes\r\n", ret_val);	
 
-	uint8_t index=0;
 	while (_wire.available())
 		{
-		char_read = _wire.readByte();
-		if (debug) Serial.printf("%u:0x%02X ", index, char_read);
-		data[index++] = char_read;
+		cmd_response.as_array[index] = _wire.readByte();
+		if (debug) Serial.printf("%u:0x%02X ", index, cmd_response.as_array[index]);
+		index++;
+		}
+	
+	if (ASCII == count)											// an ascii response so null terminate it
+		{														// as_array[0] holds length of remaining response in bytes
+		index = cmd_response.as_array[0] + 1;					// <length>+1 is index of null terminator
+		cmd_response.as_array[index] = '\0';					// null terminate
 		}
 
 	if (debug) Serial.printf ("\n");
 	return SUCCESS;
 	}
 
-//---------------------------< C O M M A N D _ L I N E A R _ R E A D 1 6 >--------------------------
-/**
 
-	Wire.readByte returns a uint8_t or 0 if buffer empty
+//---------------------------< R A W _ V O L T A G E _ T O _ F L O A T >--------------------------------------
+//
+// Voltage measurements appear to be rendered in a different form from all other linear measurements reported
+// by the LCM300.  These measurements use a separate exponent read from the LCM300 with the VOUT_MODE_CMD (0x20).
+//
+// _linear_exponent is set by init() and is simply a sign-extended version of the raw value returned by the
+// VOUT_MODE_CMD (0x20)
+//
+// result = mantissa * 2.0^exponent
+//
 
-*/
-uint8_t Systronix_LCM300::command_linear_read16 (int cmd, uint16_t data, bool debug) 
+float Systronix_LCM300::raw_voltage_to_float (uint16_t volt_raw)
 	{
-	uint8_t ret_val;
-	uint8_t byte_read;
-	size_t count = 2;			// how many bytes we will read
-	float vout;
-
-	if (!error.exists)								// exit immediately if device does not exist
-		return ABSENT;
-
-	_wire.beginTransmission (_base);						// base address
-	ret_val = _wire.write (cmd);							// PMBus command code
-
-	if (1 != ret_val)
-		{
-		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
-		return FAIL;
-		}
-
-	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
-
-	if (debug) Serial.printf("cmd 0x%X, ", cmd);
-
-	// now try to read the data at that read command location
-
-	if (count != _wire.requestFrom(_base, count, I2C_STOP))
-		{
-		Serial.println("linear16 read wrong number of bytes available");
-		ret_val = _wire.status();						// to get error value
-		tally_transaction (ret_val);					// increment the appropriate counter
-		return FAIL;
-		}
-
-	if (debug) Serial.printf(" read %i bytes\r\n", count);	
-
-	uint8_t index=0;
-	while (_wire.available())
-		{
-		byte_read = _wire.readByte();
-		if (debug) Serial.printf("%u:0x%02X ", index, byte_read);
-		if (0==index) 
-			{
-			data = byte_read;		// LSB
-			if (debug) Serial.printf ("data: 0x%04X\n", data);
-			}
-		else 
-			{
-			data |= (uint16_t)(byte_read<<8);
-			if (debug) Serial.printf ("data: 0x%04X\n", data);
-			}
-		index++;
-		}
-
-	if (debug) Serial.printf ("data: 0x%04X\n", data);
-
-	vout = data;
-	if (debug) Serial.printf ("data: %.2f\n", vout);
-
-	// divide by exponent
-	data = data/0x0200;
-	vout = vout/512;
-
-	if (debug) Serial.printf ("data: 0x%04X, %u\n", data, data);
-	if (debug) Serial.printf ("data float: %.2f\n", vout);
-	return SUCCESS;
-
-
+	return (float)volt_raw * powf (2.0, (float)_linear_exponent);
 	}
 
-//---------------------------< C O M M A N D _ A S C I I _ R E A D >------------------------------------------
-/**
-Read at most length chars of ascii data received in response to cmd, store it in char array data
-The first byte of ascii data on the LCM300 is the length which value is always >=2 and < 16, if not, 
-make 0th byte of array null and return FAIL.
-Of course the first byte could actually be the LSB of a linear number, so we check further.
-If first byte < length, try to read that many ascii bytes. If each is not ascii range, make 0th byte of array null
-and return FAIL.
-If data appears to be ASCII, copy data to char array and null terminate.
 
-The PMBus wants you to send the command, then a single restart to read the data. It doesn't like multiple restarts
-to read the data piecemeal. This means you can't read the length byte and then read the data in separate read cycles.
-To read just the length it would be necessary to then start another command cycle. Which might be an OK approach.
-Then this function could read only the exact ascii data available.
+//---------------------------< P M B U S _ L I T E R A L _ T O _ F L O A T >----------------------------------
+//
+// PMbus literal values are 16-bit values where:
+//		[15..11]	signed 2's complement exponent
+//		[10..0]		signed 2's complement mantissa
+// to calculate float value, extract exponent, sign extend so that exponent lsb from literal is now in bit 0.
+// result = mantissa * 2.0^exponent
+//
 
-@param cmd, use the defined constants in the header file to be safe.
-@param length the most we will try to read. Maybe not needed now that we read ascii length. 
-However if this is not really ascii data we could misread some large value as the length.
-So this also prevents buffer overrun
-@param *data pointer to array to put the ascii data. Length value stripped. Null terminated.
-@param debug print out detailed cmd value, length byte, # read, hex values + char if printable 
-@return SUCCESS, FAIL, or ABSENT
-*/
-
-uint8_t Systronix_LCM300::command_ascii_read (int cmd, size_t length, char *data, bool debug)
+float Systronix_LCM300::pmbus_literal_to_float (uint16_t literal_raw)
 	{
-	uint8_t ret_val;
-	size_t count;							// # bytes to read, generally length + 2
-	char char_read;
-	char char_print = 0x20;
+	int16_t		exponent = (int16_t)(cmd_response.as_word & 0xF800) >> 11;		// get the exponent; int16_t cast required because 0xF800 is uint16_t
+	int16_t		mantissa = cmd_response.as_word;								// get the mantissa
+				mantissa = (mantissa & 0x0400) ? mantissa | 0xF800 : mantissa & 0x07FF;		// sign extend the mantissa
 
-	if (!error.exists)						// exit immediately if device does not exist
-		return ABSENT;
-
-
-	_wire.beginTransmission (_base);						// base address
-	ret_val = _wire.write (cmd);							// PMBus command code
-
-	if (1 != ret_val)
-		{
-		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
-		return FAIL;
-		}
-
-	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
-
-	if (debug) Serial.printf("ascii read, cmd: 0x%X\r\n", cmd);
-
-	// now try to read the ascii data at that read command location
-
-	// 0th byte is the length of the ascii data, always >=2 and < 16 for LCM300
-	// add length byte and one more for good measure
-	count = 1;
-	if (count != _wire.requestFrom(_base, count, I2C_STOP))
-		{
-		Serial.printf("ascii read of 1st byte failed\r\n");
-		data[0] = '\0';	// null term
-		return FAIL;
-		}
-	else
-		{
-		// should read length of ascii data avail at this command
-		char_read = _wire.readByte();
-		if (debug) Serial.printf("ascii length byte = %u\r\n", (uint8_t) char_read);
-		}
-
-	_wire.beginTransmission (_base);						// base address
-	ret_val = _wire.write (cmd);							// PMBus command code
-
-	if (1 != ret_val)
-		{
-		tally_transaction (WR_INCOMPLETE);				// increment the appropriate counter
-		return FAIL;
-		}
-
-	_wire.endTransmission(I2C_NOSTOP); 					// don't send a stop condition, PMBus wants a repeated start
-
-	// now read the ascii data based on length we already read, but we re-read the length byte
-	count = char_read + 1;	// length of ascii data including length byte
-	if (count != _wire.requestFrom(_base, count, I2C_STOP))
-		{
-		Serial.printf("ascii data chars failed");
-		ret_val = _wire.status();				// to get error value
-		tally_transaction (ret_val);					// increment the appropriate counter
-		return FAIL;
-		}
-	else
-		{
-		if (debug) Serial.printf("%u ascii chars read\r\n", (uint8_t)count);	
-		}
-
-	uint8_t index=0;
-	while (_wire.available())
-		{
-		char_read = _wire.read();
-		if ((char_read < 0x20) || (char_read > 0x7E)) 
-			{
-			char_print = 0x20;	// unprintable? Use space
-			}
-		else
-			{
-			char_print = char_read;	// printable ascii	
-			}
-		if (debug) Serial.printf("%u:0x%02X/%c ", index, char_read, char_print);
-		if (0 == index)
-			{
-				// discard length in byte 0
-			}
-		else 
-			{
-				data[index-1] = char_read;
-			}
-		index++;
-		}
-
-	if (index > 2)
-		data[index-1] = '\0'; 	// null term
-
-	if (debug) Serial.println();
-	return SUCCESS;
+	return mantissa * powf (2.0, (float)exponent);
 	}
