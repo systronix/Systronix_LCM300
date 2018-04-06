@@ -340,14 +340,15 @@ float Systronix_LCM300::raw_voltage_to_float (uint16_t volt_raw)
 //		[15..11]	signed 2's complement exponent
 //		[10..0]		signed 2's complement mantissa
 // to calculate float value, extract exponent, sign extend so that exponent lsb from literal is now in bit 0.
+// sign extend the mantissa
 // result = mantissa * 2.0^exponent
 //
 
 float Systronix_LCM300::pmbus_literal_to_float (uint16_t literal_raw)
 	{
-	int16_t		exponent = (int16_t)(cmd_response.as_word & 0xF800) >> 11;		// get the exponent; int16_t cast required because 0xF800 is uint16_t
-	int16_t		mantissa = cmd_response.as_word;								// get the mantissa
+	int16_t		exponent = (int16_t)(literal_raw & 0xF800) >> 11;							// get the exponent; int16_t cast required because 0xF800 is uint16_t
+	int16_t		mantissa = literal_raw;														// get the mantissa
 				mantissa = (mantissa & 0x0400) ? mantissa | 0xF800 : mantissa & 0x07FF;		// sign extend the mantissa
 
-	return mantissa * powf (2.0, (float)exponent);
+	return (float)mantissa * powf (2.0, (float)exponent);
 	}

@@ -251,7 +251,7 @@ class Systronix_LCM300
 				{VOUT_MODE_CMD_VAL,				A_BYTE},
 				{VOUT_COMMAND_CMD_VAL,			LINEAR},
 				{VOUT_MAX_CMD_VAL,				LINEAR},
-				{READ_EOUT_CMD_VAL,				LINEAR},	// power over some time interval; requires raw_voltage_to_float(); (because E means volts?)
+				{READ_EOUT_CMD_VAL,				LINEAR},	// power over some time interval; requires raw_voltage_to_float(); (because E means volts?) Artesyn comm if spec says 6 bytes? 
 				{READ_VOUT_CMD_VAL,				LINEAR},
 				{READ_IOUT_CMD_VAL,				LINEAR},
 				{READ_TEMPERATURE_2_CMD_VAL,	LINEAR},

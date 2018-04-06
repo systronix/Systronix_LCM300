@@ -105,7 +105,7 @@ void loop(void)
 
 	Serial.printf("\nMfr Iout max command:\n");
 	result = lcm300_58.command_raw_read (MFR_IOUT_MAX_CMD, verbose);
-	Serial.printf ("\tMfr Iout max command: %.2fV\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));
+	Serial.printf ("\tMfr Iout max command: %.2fA\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));
 
 
 
