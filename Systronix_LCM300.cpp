@@ -352,3 +352,36 @@ float Systronix_LCM300::pmbus_literal_to_float (uint16_t literal_raw)
 
 	return (float)mantissa * powf (2.0, (float)exponent);
 	}
+
+
+//---------------------------< P M B U S _ A V E R A G E _ P O W E R >----------------------------------------
+//
+// Calculate average power.  From PMBus Power System Mgt Protocol Specification 1.2 part II section 10.13 page 87,
+// this calculation:
+//		average_power = (energy_count - last_energy _count) / (sample_count - last_sample_count)
+//
+// where energy_count is the result from this equation:
+//
+//	energy_count = rollover_count * maximum_linear_format_value + accumulator_value
+//		where:
+//			maximum_linear_format_value = Ymax * 2^Nmax = ((2^10)-1) * 2^15 = 33,521,664
+//
+// this function does all maintenance of the eout_data struct.
+//
+// this function must be called directly after a call to command_raw_read (READ_EOUT_CMD)
+//
+
+void Systronix_LCM300::pmbus_average_power (void)
+	{
+																		// get newly read raw data from command response union
+//	eout_data.payload_length = cmd_response.as_array[0];				// not used
+	eout_data.accumulator = *(uint16_t*)&cmd_response.as_array[1];
+	eout_data.rollover_count = cmd_response.as_array[3];
+	eout_data.sample_count = *(uint32_t*)&cmd_response.as_array[4] & 0x00FFFFFF;
+	
+	eout_data.energy_count = eout_data.rollover_count * 33521664 + eout_data.accumulator;	// calculate new energy count
+	eout_data.average_power = (eout_data.energy_count - eout_data.last_energy_count) / (eout_data.sample_count - eout_data.last_sample_count);	// calculate average power
+	
+	eout_data.last_energy_count = eout_data.energy_count;				// update lasts
+	eout_data.last_sample_count = eout_data.sample_count;
+	}

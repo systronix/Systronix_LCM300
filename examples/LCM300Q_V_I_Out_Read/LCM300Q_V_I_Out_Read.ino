@@ -26,6 +26,10 @@ Compiler has major whines if called as shown in the online Wire reference.
 #include <Arduino.h>
 #include <Systronix_LCM300.h>	// best version of I2C library is #included by the library. Don't include it here!
 
+#define		PIE_ONLY
+
+
+
 uint16_t dtime;  // delay in loop
 uint8_t result;   // SUCCESS, FAIL, or ABSENT defined in library header
 bool verbose = false; // don't print out detailed info about the PMBus command transaction
@@ -67,10 +71,20 @@ void setup(void)
 
 
 /* ========== LOOP ========== */
+
+time_t		loop_time;
+time_t		last_loop_time;
+time_t		interval;
+uint32_t	number_of_samples;
+
 void loop(void) 
 	{
-	Serial.printf("@%u\r\n", millis()/1000);
+	last_loop_time = loop_time;
+	loop_time = millis();
+	interval = loop_time - last_loop_time;
+	Serial.printf("@%u\r\n", loop_time/1000);
 
+#ifndef PIE_ONLY
 	Serial.printf("\nMfr ID:\n");
 	result = lcm300_58.command_raw_read (MFR_ID_CMD, verbose);
 	Serial.printf ("\tMfr ID: %s\n", &lcm300_58.cmd_response.as_array[1]);
@@ -126,7 +140,7 @@ void loop(void)
 	Serial.printf("\nVout max command:\n");
 	result = lcm300_58.command_raw_read (VOUT_MAX_CMD, verbose);
 	Serial.printf ("\tVout max command: %.2fV\n", lcm300_58.raw_voltage_to_float (lcm300_58.cmd_response.as_word));
-
+#endif
 
 	Serial.printf("\nRead Vout Command:\n");
 	result = lcm300_58.command_raw_read (READ_VOUT_CMD, verbose);
@@ -141,18 +155,34 @@ void loop(void)
 	Serial.printf ("\tRead Pout: %.2fW\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));
 
 	Serial.printf("\nRead Eout Command:\n");
-	result = lcm300_58.command_raw_read (READ_EOUT_CMD, verbose);
-	Serial.printf ("\tRead Eout: %.2fW\n", lcm300_58.raw_voltage_to_float (lcm300_58.cmd_response.as_word));
+	result = lcm300_58.command_raw_read (READ_EOUT_CMD, true);
 
+	number_of_samples = (uint32_t)(*(uint32_t*)&lcm300_58.cmd_response.as_array[4] & 0x00FFFFFF) - lcm300_58.eout_data.last_sample_count;
+	Serial.printf ("\t\tsamples per %dmS: %d (%.4f/sec)\n", interval, number_of_samples, (float)(number_of_samples/(interval/1000.0)));
 
+	lcm300_58.pmbus_average_power ();
+
+	Serial.printf ("\t\taccumulator: %d\n", lcm300_58.eout_data.accumulator);
+	Serial.printf ("\t\trollover count: %d\n", lcm300_58.eout_data.rollover_count);
+	Serial.printf ("\t\tsample count: %d\n", lcm300_58.eout_data.sample_count);
+	Serial.printf ("\t\tenergy count: %u\n", lcm300_58.eout_data.energy_count);
+	if (500 < lcm300_58.eout_data.average_power)
+		Serial.printf ("\t\taverage power: rollover detected\n");
+	else
+		Serial.printf ("\t\taverage power: %u\n", lcm300_58.eout_data.average_power);
+
+#ifndef PIE_ONLY
 	Serial.printf("\nTemperature 2:\n");
 	result = lcm300_58.command_raw_read (READ_TEMPERATURE_2_CMD, verbose);
 	Serial.printf ("\tTemperature 2: %.2fC\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));
+#endif
 
 	Serial.printf("\nFan speed:\n"); 
 	result = lcm300_58.command_raw_read (READ_FAN_SPEED_CMD, verbose);
-	Serial.printf ("\tFan speed: %.0frpm\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));
+	Serial.printf ("\tFan speed: %.0frpm (linear)\n", lcm300_58.pmbus_literal_to_float (lcm300_58.cmd_response.as_word));	// data sheet specifies linear
+	Serial.printf ("\tFan speed: %drpm (direct)\n", (int16_t)lcm300_58.cmd_response.as_word);										// this is 
 	
+#ifndef PIE_ONLY
 	Serial.printf("\nStatus:\n");
 	result = lcm300_58.command_raw_read (STATUS_BYTE_CMD, verbose);
 	Serial.printf ("\t0x78: 0x%.2X\n", lcm300_58.cmd_response.as_byte);
@@ -168,7 +198,7 @@ void loop(void)
 
 	result = lcm300_58.command_raw_read (STATUS_TEMP_CMD, verbose);
 	Serial.printf ("\t0x7D: 0x%.2X\n", lcm300_58.cmd_response.as_byte);
-
+#endif
 
 	Serial.printf ("\n");
 
