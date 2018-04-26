@@ -141,7 +141,7 @@ uint8_t Systronix_LCM300::base_get(void)
 uint8_t Systronix_LCM300::init (void)
 	{
 	error.exists = true;								// here, assume that the device exists
-	if (SUCCESS != command_raw_read (VOUT_MODE_CMD))	// did we get the raw exponent?
+	if (SUCCESS != command_read (VOUT_MODE_CMD))		// did we get the raw exponent?
 		{
 		error.exists = false;							// unsuccessful i2c transaction
 		return ABSENT;
@@ -252,7 +252,41 @@ void Systronix_LCM300::tally_transaction (uint8_t value)
 	}
 
 
-//---------------------------< C O M M A N D _ R A W _ R E A D >----------------------------------------------
+//---------------------------< C L E A R _ F A U L T S _ C M D >----------------------------------------------
+//
+// 
+//
+
+uint8_t Systronix_LCM300::clear_faults_cmd (void)
+	{
+	uint8_t ret_val;
+	
+	if (!error.exists)										// exit immediately if device does not exist
+		return ABSENT;
+
+	delay(50);												// exists; ensure that we meet datasheet communication interval spec
+
+	_wire.beginTransmission(_base);							// init tx buff for xmit to slave at _base address
+	ret_val = _wire.write (LCM300_CLEAR_FAULTS_CMD);		// add command byte to the tx buffer
+	if (1 != ret_val)
+		{
+		tally_transaction (WR_INCOMPLETE);					// only here 0 is error value since we expected to write more than 0 bytes
+		return FAIL;
+		}
+
+	ret_val = _wire.endTransmission();						// xmit command byte
+	if (SUCCESS != ret_val)
+		{
+		tally_transaction (ret_val);						// increment the appropriate counter
+		return FAIL;										// calling function decides what to do with the error
+		}
+
+	tally_transaction (SUCCESS);
+	return SUCCESS;
+	}
+
+
+//---------------------------< C O M M A N D _ R E A D >------------------------------------------------------
 /**
 Read the RAW data received in response to cmd, store it in cmd_response.as_array[]
 Data could be any type, so an attempt to print as string may be unreadable.
@@ -264,7 +298,7 @@ Note that byte 0 of LCM300 ascii commands is the length of the string, and strin
 @return SUCCESS, FAIL, or ABSENT
 */
 
-uint8_t Systronix_LCM300::command_raw_read (int cmd_idx, bool debug)
+uint8_t Systronix_LCM300::command_read (int cmd_idx, bool debug)
 	{
 	uint8_t ret_val;
 	size_t	count = cmd[cmd_idx].count;							// number of bytes to read
@@ -327,6 +361,9 @@ uint8_t Systronix_LCM300::command_raw_read (int cmd_idx, bool debug)
 //
 // result = mantissa * 2.0^exponent
 //
+// This function assumes that _linear_exponent has been set to a valid value before this function is called.
+// should not normally be an issue because _linear_exponent is set by init().
+//
 
 float Systronix_LCM300::raw_voltage_to_float (uint16_t volt_raw)
 	{
@@ -362,26 +399,65 @@ float Systronix_LCM300::pmbus_literal_to_float (uint16_t literal_raw)
 //
 // where energy_count is the result from this equation:
 //
-//	energy_count = rollover_count * maximum_linear_format_value + accumulator_value
+//	energy_count = rollover_count * maximum_direct_format_value + accumulator_value
 //		where:
-//			maximum_linear_format_value = Ymax * 2^Nmax = ((2^10)-1) * 2^15 = 33,521,664
+//			coefficients: m=1, b=0, R=0
+//			Ymax = 2^15-1 = 32767
+//			maximum_direct_format_value = (mYmax + b) * 10^R = (1Ymax + 0) * 10^R = (1 * 32767 + 0) * 10^0 = 32767
 //
 // this function does all maintenance of the eout_data struct.
 //
-// this function must be called directly after a call to command_raw_read (READ_EOUT_CMD)
+// this function must be called directly after a call to command_read (READ_EOUT_CMD)
+//
+// Accumulator:  the accumulator value is believed to be in PMBus direct format event though the 1v5 data sheet
+// indicates that the READ_EOUT command returns 2 bytes in linear format.  Treating accumulator as if it is a
+// PMBus linear value produces irrational results (often negative power) which indicates that accumulator cannot
+// be PMBus linear.  The max value for accumulator in PMBus direct format is 32767 given the coefficients stated
+// in the data sheet m=1, b=0, R=0.
+//
+// When accumulator overflows, rollover_counter is incremented (this too may rollover at rc = 255).  Because
+// rollover_counter multiplies maximum_direct_format_value when calculating energy_count, when rollover_count
+// rolls over to zero it is different from the rollover_count used to make last_energy_count, so average_power
+// will be obviously wrong.  To get round that, when rollover_count is less than last_rollover_count, we modify
+// accumulator by adding 32768 and use last_rollover_count to calculate the current energy_count.  These 'spoofing'
+// values are not retained beyond the current energy_count calculation.
 //
 
 void Systronix_LCM300::pmbus_average_power (void)
 	{
-																		// get newly read raw data from command response union
-//	eout_data.payload_length = cmd_response.as_array[0];				// not used
-	eout_data.accumulator = *(uint16_t*)&cmd_response.as_array[1];
+	uint32_t	iaccumulator;											// intermediate values that will be used in the calculations
+	uint32_t	irollover_count;										// uint32 because intermediate results can be 25 bits
+	uint32_t	isample_count;
+	uint32_t	correction;												// used when rollover counter rolls over to 0
+																
+	eout_data.accumulator = *(uint16_t*)&cmd_response.as_array[1];		// get newly read raw data from command response union
 	eout_data.rollover_count = cmd_response.as_array[3];
-	eout_data.sample_count = *(uint32_t*)&cmd_response.as_array[4] & 0x00FFFFFF;
+	eout_data.sample_count = *(uint32_t*)&cmd_response.as_array[4] & 0x00FFFFFF;	// 24 bits of sample count may have PEC so mask that off
+
+	if (eout_data.rollover_count < eout_data.last_rollover_count)		// accumulator overflow occurs at 32767; handle the case when accumulator overflow
+		{																// causes rollover_counter to rollover to 0.  When this happens we create spoof
+		irollover_count = (uint32_t)eout_data.last_rollover_count;		// values for energy_count calculation by using last time's rollover_count.
+																		// Because accumulator may have rolled over multiple times since last reading
+																		// which may have caused rollover counter to rollover, calculate an accumulator
+		correction = ((eout_data.rollover_count + 256) - eout_data.last_rollover_count) * 32768;	// correction to be added to accumulator.  Only valid
+		iaccumulator = (uint32_t)eout_data.accumulator + correction;	// a single rollover counter rollover
+		}
+	else
+		{																// no accumulator overflow
+		irollover_count = (uint32_t)eout_data.rollover_count;			// so no spoofing required
+		iaccumulator = (uint32_t)eout_data.accumulator;
+		}
+																		// when sample_count rolls over spoof the calculation by showing the rollover in isample_count
+																		// rollover occurs at 16777215 (0x00FFFFFF)
+	isample_count = (eout_data.sample_count < eout_data.last_sample_count) ? eout_data.last_sample_count + 16777216 : eout_data.sample_count;	// 0x01000000 = 2^24
 	
-	eout_data.energy_count = eout_data.rollover_count * 33521664 + eout_data.accumulator;	// calculate new energy count
-	eout_data.average_power = (eout_data.energy_count - eout_data.last_energy_count) / (eout_data.sample_count - eout_data.last_sample_count);	// calculate average power
-	
-	eout_data.last_energy_count = eout_data.energy_count;				// update lasts
-	eout_data.last_sample_count = eout_data.sample_count;
+	eout_data.energy_count = irollover_count * 32767 + iaccumulator;	// calculate new energy count
+	eout_data.average_power = (eout_data.energy_count - eout_data.last_energy_count) / (isample_count - eout_data.last_sample_count);	// calculate average power
+
+	if (eout_data.rollover_count < eout_data.last_rollover_count)		// when rollover_counter rolls over, calculate new last energy count using rolled over values
+		eout_data.energy_count = eout_data.rollover_count * 32767 + eout_data.accumulator;	// from the most recent READ_EOUT command
+
+	eout_data.last_energy_count = eout_data.energy_count;				// and save new 'lasts'
+	eout_data.last_sample_count = eout_data.sample_count;				// always this even when it has rolled over
+	eout_data.last_rollover_count = eout_data.rollover_count;
 	}

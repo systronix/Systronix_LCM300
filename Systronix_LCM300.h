@@ -88,6 +88,9 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 // default = 0x80
 #define LCM300_OPERATION_CMD 		0x01					// 8-bit read/write
 
+#define	LCM300_CLEAR_FAULTS_CMD		0x03					// write only command; no data
+
+
 // WRITE PROTECT register 0x10 has four possible mutually-exclusive values
 // 00h – Enable writing to all writeable commends
 // 20h – Disables write except 10h, 01h, 00h, 02h and 21h commands
@@ -283,9 +286,10 @@ class Systronix_LCM300
 
 		struct												// all of the data necessary for and the results of the READ_EOUT command calculations
 			{
-			uint8_t		payload_length;						// for eout, 0x06
-			uint16_t	accumulator;						// accumulated energy per sample
+			uint8_t		payload_length;						// for eout, this byte always 0x06
+			uint16_t	accumulator;						// accumulated energy per sample (rolls over at 32767? supposed to be 'PMBus linear' but this value seems to be direct)
 			uint8_t		rollover_count;						// number of times that accumulator has overflowed
+			uint16_t	last_rollover_count;
 			uint32_t	sample_count;						// 24 bits; upper 8 must be discarded or treated as PEC (Packet Error Check is a crc-8 not supported in this code)
 			uint32_t	last_sample_count;					// the previous one
 			uint32_t	energy_count;						// intermediate calculation result
@@ -306,7 +310,8 @@ class Systronix_LCM300
 
 		uint8_t		base_get (void);
 
-		uint8_t 	command_raw_read (int cmd_idx, bool debug=false);	// read raw data from lcm300 in response to command indexed by cmd_idx
+		uint8_t		clear_faults_cmd (void);
+		uint8_t 	command_read (int cmd_idx, bool debug=false);	// read raw data from lcm300 in response to command indexed by cmd_idx
 
 		float		raw_voltage_to_float (uint16_t volt_raw);
 		float		pmbus_literal_to_float (uint16_t literal_raw);
