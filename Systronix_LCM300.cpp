@@ -84,7 +84,6 @@ you can change their contents.
 
 #include <Systronix_LCM300.h>
 
-Systronix_i2c_common i2c_common;
 
 //---------------------------< S E T U P >--------------------------------------------------------------------
 /*!
