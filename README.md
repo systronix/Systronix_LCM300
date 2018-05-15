@@ -1,6 +1,14 @@
 # Systronix_LCM300
 Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
 
+## What is PMBus?
+- Power Management Bus. Based on I2C. Lets you monitor and control a power supply from almost any microcontroller. Great idea, right? We think so.
+- [PMBus at wikipedia](https://en.wikipedia.org/wiki/Power_Management_Bus)
+- [Lawsuit between Power-One and Artesyn](http://electronicdesign.com/boards/patent-lawsuit-verdict-clouds-future-pmbus) 2008 article by Sam Davis. why can't we all just get along?
+- [PMBus - panacea or hype?](https://web.archive.org/web/20110718095312/http://www2.electronicproducts.com/PageSearch.aspx?FName=artesyn.aug2005.HTML) 2011 article written by Bob White of Artesyn, one of the PMBus founders.
+- [Power One is now part of Bel Power, the same company as Bel Fuse](https://www.belfuse.com/power-solutions)
+- [PMBus: The Nervous System Bringing Digital Power to Life](https://www.digikey.com/en/articles/techzone/2016/oct/pmbus-the-nervous-system-bringing-digital-power-to-life) 2016 article at DigiKey
+
 ## Branches
 - master - as of 2018 March, this is the current development branch. We may merge what little might be of interest from SALT2v1_PowerDist2v0
 - SALT2v1_PowerDist2v0 (superceded) was the branch Bruce was working on but Scott was on master
@@ -22,12 +30,16 @@ Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
  chars to expect. Then the ascii chars follow. Then a garbage char if you keep reading, then 0xFF. No null terminator. This is actually pretty convenient. The
  length of ASCII data given in the LCM300 data sheet is almost always wrong. So we use the len value from the PMBus interface not the data sheet values.
 
+## Release Information
+- As of 2018 May all the important commands are working.
+
 ## Functions
+- TODO add new functions
  - command_raw_read (int cmd, size_t count, char *data) useful mostly for debugging and exploration, it is how I discovered many things about the LCM300 data format. Read cmd for count bytes and store the data in char data[]. This lets you try to print out the data as a string as well as inspecting it individually or as chars. 
  - command_ascii_read (int cmd, size_t length, char *data, bool debug)
 
-
 ## Examples
+- TODO add new examples
  - LCM300Q_CmdAsciiRead prints out a handful of ascii command values as proper length (read from the command response), null-terminated strings
  - LCM300Q_CmdRawRead
  - LCM300Q_V_I_Out_Read is a development test to verify "linear mode" data interpretation
