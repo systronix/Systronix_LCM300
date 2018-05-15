@@ -5,9 +5,9 @@
 /**************************************************************************************************/
 /*!
 	@file		Systronix_LCM300.h
-	
+
 	@author		B Boyes (Systronix Inc)
-	@license	TBD (see license.txt)	
+	@license	TBD (see license.txt)
 	@section	HISTORY
 
 
@@ -55,19 +55,10 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 
 
 #include <Arduino.h>
+#include <Systronix_i2c_common.h>
 
-#if defined (__MK20DX256__) || defined (__MK20DX128__) 	// Teensy 3.1 or 3.2 || Teensy 3.0
-#include <i2c_t3.h>	// for Teensy 3 family use optimized and more robust library
-#else
-#include <Wire.h>	// for AVR I2C library
-#endif
 
-#define		SUCCESS	0
-#define		FAIL	(~SUCCESS)
-#define		ABSENT	0xFD
-
-#define		WR_INCOMPLETE		11
-#define		SILLY_PROGRAMMER	12
+//---------------------------< D E F I N E S >----------------------------------------------------------------
 
 #define		LCM300_BASE_MIN 	0x58	// 7-bit address not including R/W bit
 #define		LCM300_BASE_MAX 	0x5F	// 7-bit address not including R/W bit
@@ -162,7 +153,7 @@ In addition the actual implementation of the LCM300 PMBus interface is not consi
 #define	STATUS_TEMP_CMD_VAL			0x7D					// bit mapped status byte
 
 enum {														// these enums are indexes into the cmd array of structs
-	VOUT_MODE_CMD,											// !!! NOTE: additions here require same-position additions to the enum !!!
+	VOUT_MODE_CMD,											// !!! NOTE: additions to the array require same-position additions to the enum !!!
 	VOUT_COMMAND_CMD,
 	VOUT_MAX_CMD,
 	READ_EOUT_CMD,
@@ -188,13 +179,12 @@ enum {														// these enums are indexes into the cmd array of structs
 	STATUS_TEMP_CMD,
 	CMD_ARRAY_SIZE											// this must be the last member of the enum
 	};
-	
+
 
 class Systronix_LCM300
 	{
 	protected:
 		uint8_t		_base;									// base address for this instance; four possible values
-		void		tally_transaction (uint8_t);			// maintains the i2c_t3 error counters
 
 		char* 		_wire_name = (char*)"empty";
 		i2c_t3		_wire = Wire;							// why is this assigned value = Wire? [bab]
@@ -203,24 +193,7 @@ class Systronix_LCM300
 		int8_t		_linear_exponent;						// the 5 lsb of VOUT_MODE in signed 2's complement
 
 	public:
-		struct
-			{
-			bool		exists;								// set false after an unsuccessful i2c transaction
-			uint8_t		error_val;							// the most recent error value, not just SUCCESS or FAIL
-			uint32_t	incomplete_write_count;				// Wire.write failed to write all of the data to tx_buffer
-			uint32_t	data_len_error_count;				// data too long
-			uint32_t	timeout_count;						// slave response took too long
-			uint32_t	rcv_addr_nack_count;				// slave did not ack address
-			uint32_t	rcv_data_nack_count;				// slave did not ack data
-			uint32_t	arbitration_lost_count;
-			uint32_t	buffer_overflow_count;
-			uint32_t	other_error_count;					// from endTransmission there is "other" error
-			uint32_t	unknown_error_count;
-			uint32_t	data_value_error_count;				// I2C message OK but value read was wrong; how can this be?
-			uint32_t	silly_programmer_error;				// I2C address to big or something else that "should never happen"
-			uint64_t	total_error_count;					// quick check to see if any have happened
-			uint64_t	successful_count;					// successful access cycle
-			} error;
+		error_t		error;									// error struct typdefed in Systronix_i2c_common.h
 
 		char*		wire_name;								// name of Wire, Wire1, etc in use
 

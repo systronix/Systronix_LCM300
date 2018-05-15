@@ -1,9 +1,9 @@
 /******************************************************************************/
 /*!
 	@file		Systronix_LCM300Q.cpp MASTER
-	
+
 	@author		B Boyes (Systronix Inc)
-    @license	TBD (see license.txt)	
+    @license	TBD (see license.txt)
     @section	HISTORY
 
 
@@ -82,7 +82,9 @@ you can change their contents.
 
 --------------------------------------------------------------------------------------------------*/
 
-#include <Systronix_LCM300.h>	
+#include <Systronix_LCM300.h>
+
+Systronix_i2c_common i2c_common;
 
 //---------------------------< S E T U P >--------------------------------------------------------------------
 /*!
@@ -95,7 +97,7 @@ uint8_t Systronix_LCM300::setup (uint8_t base, i2c_t3 wire, char* name)
 	{
 	if ((LCM300_BASE_MIN > base) || (LCM300_BASE_MAX < base))
 		{
-		tally_transaction (SILLY_PROGRAMMER);
+		i2c_common.tally_transaction (SILLY_PROGRAMMER, &error);
 		return FAIL;
 		}
 
@@ -176,82 +178,6 @@ uint32_t Systronix_LCM300::reset_bus_count_read(void)
 	}
 
 
-//---------------------------< T A L L Y _ T R A N S A C T I O N >--------------------------------------------
-/**
-Here we tally errors.  This does not answer the what-to-do-in-the-event-of-these-errors question; it just
-counts them.
-
-TODO: we should decide if the correct thing to do when slave does not ack, or arbitration is lost, or
-timeout occurs, or auto reset fails (states 2, 5 and 4, 7 ??? state numbers may have changed since this
-comment originally added) is to declare these addresses as non-existent.
-
-We need to decide what to do when those conditions occur if we do not declare the device non-existent.
-When a device is declared non-existent, what do we do then? (this last is more a question for the
-application than this library).  The questions in this TODO apply equally to other i2c libraries that tally
-these errors.
-
-Don't set error.exists = false here! These errors are likely recoverable. bab & wsk 170612
-
-This is the only place we set error.error_val()
-
-TODO use i2c_t3 error or status enumeration here in the switch/case
-*/
-
-void Systronix_LCM300::tally_transaction (uint8_t value)
-	{
-	if (value && (error.total_error_count < UINT64_MAX))
-		error.total_error_count++; 			// every time here incr total error count
-
-	error.error_val = value;
-
-	switch (value)
-		{
-		case SUCCESS:
-			if (error.successful_count < UINT64_MAX)
-				error.successful_count++;
-			break;
-		case 1:								// i2c_t3 and Wire: data too long from endTransmission() (rx/tx buffers are 259 bytes - slave addr + 2 cmd bytes + 256 data)
-			error.data_len_error_count++;
-			break;
-#if defined I2C_T3_H
-		case I2C_TIMEOUT:
-			error.timeout_count++;			// 4 from i2c_t3; timeout from call to status() (read)
-#else
-		case 4:
-			error.other_error_count++;		// i2c_t3 and Wire: from endTransmission() "other error"
-#endif
-			break;
-		case 2:								// i2c_t3 and Wire: from endTransmission()
-		case I2C_ADDR_NAK:					// 5 from i2c_t3
-			error.rcv_addr_nack_count++;
-			break;
-		case 3:								// i2c_t3 and Wire: from endTransmission()
-		case I2C_DATA_NAK:					// 6 from i2c_t3
-			error.rcv_data_nack_count++;
-			break;
-		case I2C_ARB_LOST:					// 7 from i2c_t3; arbitration lost from call to status() (read)
-			error.arbitration_lost_count++;
-			break;
-		case I2C_BUF_OVF:
-			error.buffer_overflow_count++;
-			break;
-		case I2C_SLAVE_TX:
-		case I2C_SLAVE_RX:
-			error.other_error_count++;		// 9 & 10 from i2c_t3; these are not errors, I think
-			break;
-		case WR_INCOMPLETE:					// 11; Wire.write failed to write all of the data to tx_buffer
-			error.incomplete_write_count++;
-			break;
-		case SILLY_PROGRAMMER:				// 12
-			error.silly_programmer_error++;
-			break;
-		default:
-			error.unknown_error_count++;
-			break;
-		}
-	}
-
-
 //---------------------------< C L E A R _ F A U L T S _ C M D >----------------------------------------------
 //
 // 
@@ -260,7 +186,7 @@ void Systronix_LCM300::tally_transaction (uint8_t value)
 uint8_t Systronix_LCM300::clear_faults_cmd (void)
 	{
 	uint8_t ret_val;
-	
+
 	if (!error.exists)										// exit immediately if device does not exist
 		return ABSENT;
 
@@ -270,18 +196,18 @@ uint8_t Systronix_LCM300::clear_faults_cmd (void)
 	ret_val = _wire.write (LCM300_CLEAR_FAULTS_CMD);		// add command byte to the tx buffer
 	if (1 != ret_val)
 		{
-		tally_transaction (WR_INCOMPLETE);					// only here 0 is error value since we expected to write more than 0 bytes
+		i2c_common.tally_transaction (WR_INCOMPLETE, &error);					// only here 0 is error value since we expected to write more than 0 bytes
 		return FAIL;
 		}
 
 	ret_val = _wire.endTransmission();						// xmit command byte
 	if (SUCCESS != ret_val)
 		{
-		tally_transaction (ret_val);						// increment the appropriate counter
+		i2c_common.tally_transaction (ret_val, &error);						// increment the appropriate counter
 		return FAIL;										// calling function decides what to do with the error
 		}
 
-	tally_transaction (SUCCESS);
+	i2c_common.tally_transaction (SUCCESS, &error);
 	return SUCCESS;
 	}
 
@@ -314,7 +240,7 @@ uint8_t Systronix_LCM300::command_read (int cmd_idx, bool debug)
 
 	if (1 != ret_val)
 		{
-		tally_transaction (WR_INCOMPLETE);						// increment the appropriate counter
+		i2c_common.tally_transaction (WR_INCOMPLETE, &error);						// increment the appropriate counter
 		return FAIL;
 		}
 
@@ -327,11 +253,11 @@ uint8_t Systronix_LCM300::command_read (int cmd_idx, bool debug)
 		{
 		Serial.printf ("raw read: invalid response length: %d bytes\n", ret_val);
 		ret_val = _wire.status();								// to get error value
-		tally_transaction (ret_val);							// increment the appropriate counter
+		i2c_common.tally_transaction (ret_val, &error);							// increment the appropriate counter
 		return FAIL;
 		}
 
-	if (debug) Serial.printf(" read %i bytes\r\n", ret_val);	
+	if (debug) Serial.printf(" read %i bytes\r\n", ret_val);
 
 	while (_wire.available())
 		{
@@ -339,7 +265,7 @@ uint8_t Systronix_LCM300::command_read (int cmd_idx, bool debug)
 		if (debug) Serial.printf("%u:0x%02X ", index, cmd_response.as_array[index]);
 		index++;
 		}
-	
+
 	if (ASCII == count)											// an ascii response so null terminate it
 		{														// as_array[0] holds length of remaining response in bytes
 		index = cmd_response.as_array[0] + 1;					// <length>+1 is index of null terminator
@@ -347,6 +273,8 @@ uint8_t Systronix_LCM300::command_read (int cmd_idx, bool debug)
 		}
 
 	if (debug) Serial.printf ("\n");
+
+	i2c_common.tally_transaction (SUCCESS, &error);
 	return SUCCESS;
 	}
 
@@ -429,7 +357,7 @@ void Systronix_LCM300::pmbus_average_power (void)
 	uint32_t	irollover_count;										// uint32 because intermediate results can be 25 bits
 	uint32_t	isample_count;
 	uint32_t	correction;												// used when rollover counter rolls over to 0
-																
+
 	eout_data.accumulator = *(uint16_t*)&cmd_response.as_array[1];		// get newly read raw data from command response union
 	eout_data.rollover_count = cmd_response.as_array[3];
 	eout_data.sample_count = *(uint32_t*)&cmd_response.as_array[4] & 0x00FFFFFF;	// 24 bits of sample count may have PEC so mask that off
@@ -450,7 +378,7 @@ void Systronix_LCM300::pmbus_average_power (void)
 																		// when sample_count rolls over spoof the calculation by showing the rollover in isample_count
 																		// rollover occurs at 16777215 (0x00FFFFFF)
 	isample_count = (eout_data.sample_count < eout_data.last_sample_count) ? eout_data.last_sample_count + 16777216 : eout_data.sample_count;	// 0x01000000 = 2^24
-	
+
 	eout_data.energy_count = irollover_count * 32767 + iaccumulator;	// calculate new energy count
 	eout_data.average_power = (eout_data.energy_count - eout_data.last_energy_count) / (isample_count - eout_data.last_sample_count);	// calculate average power
 
