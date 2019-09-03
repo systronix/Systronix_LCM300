@@ -1,5 +1,9 @@
 # Systronix_LCM300
-Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
+Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus, intended for use with Teensy. Some simple and useful examples are included, which print out basic data about the connected supply.
+
+## Required libraries
+- i2c_t3 special I2C library for Teensy. We have forked this so for this repo use [our fork](https://github.com/systronix/i2c_t3)
+- Systronix I2C common library[Systronix_i2c_common](https://github.com/systronix/Systronix_i2c_common)
 
 ## What is PMBus?
 - Power Management Bus. Based on I2C. Lets you monitor and control a power supply from almost any microcontroller. Great idea, right? We think so.
@@ -10,7 +14,7 @@ Arduino library for the Artesyn LCM300 family of 24/36/48V supplies with PMBus
 - [PMBus: The Nervous System Bringing Digital Power to Life](https://www.digikey.com/en/articles/techzone/2016/oct/pmbus-the-nervous-system-bringing-digital-power-to-life) 2016 article at DigiKey
 
 ## Branches
-- master - as of 2018 March, this is the current development branch. We may merge what little might be of interest from SALT2v1_PowerDist2v0
+- master - as of 2018 May, this is the current stable branch in use.
 - SALT2v1_PowerDist2v0 (superceded) was the branch Bruce was working on but Scott was on master
 - SALT2_PowerDist1 the old Master, supports SALT 2v0 and Power Dist 1v0, needs a special crossover cable between SALT and Power Dist with the swapped pins on the SALT end. SALT J1.2 -> PowerDist J2.1, SALT J1.3 -> PD J2.6, J1.1 -> J2.3, etc per schematics. This applies only to this revision of these boards.
 
